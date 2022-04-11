@@ -86,8 +86,7 @@ def online_retail_proc(df):
 		)
 	
 	# Tratamento InvoiceDate
-	df = (df.withColumn('InvoiceDate', F.lpad(F.col('InvoiceDate'), 16, '0'))
-		    .withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'd/M/yyyy H:m')))
+	df = (df.withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'd/M/yyyy H:m')))
 	
 	# Transformação UnitPrice
 	df = (df.withColumn('UnitPrice', F.regexp_replace(F.col('UnitPrice'), ',', '.').cast('float'))
@@ -101,10 +100,24 @@ def online_retail_proc(df):
 def online_retail_report(df):
 	
 	# Pergunta 1
-	(df.where(F.col('StockCode').rlike('^gift_0001')).groupBy(F.col('Description')).agg(F.sum(F.col('UnitPrice'))).agg(F.sum(F.col('sum(UnitPrice)'))).show())
+	(df.where(F.col('StockCode').rlike('^gift_0001'))
+	   .groupBy(F.col('Description'))
+	   .agg(F.sum(F.col('UnitPrice')))
+	   .agg( F.round(F.sum(F.col('sum(UnitPrice)')), 2).alias('Sum gift cards') )
+	   .show())
 	
 	# Pergunta 2
-	df.groupBy(F.month(F.col('InvoiceDate'))).count().show()
+	(df.where( F.col('StockCode').rlike('^gift_0001') )
+	   .groupBy( F.month(F.col('InvoiceDate')).alias('InvoiceDate') )
+	   .agg( F.round(F.sum(F.col('UnitPrice')), 2).alias('sales') )
+	   .orderBy(F.col('InvoiceDate').asc())
+	   .show())
+
+	# Pergunta 3
+	(df.where( F.col('StockCode') == 'S' )
+	   .groupBy( F.col('StockCode') )
+	   .agg( F.round(F.sum(F.col('UnitPrice')), 2).alias('total value') )
+	   .show())
 
 # Main
 if __name__ == "__main__":
