@@ -77,6 +77,19 @@ def online_retail_proc(df):
 			 .when(F.col('InvoiceNo').rlike('^[0-9]{6}$'), 'Effective')
 		)
 	
+	# Tratamento Quantity
+	df = df.withColumn(
+			'Quantity',
+			F.when(is_null('Quantity'), 0)
+			 .when(F.col('Quantity') < 0, 0)
+			 .otherwise(F.col('Quantity'))
+		)
+	
+	# Tratamento InvoiceDate
+	df = df.withColumn('InvoiceDate', F.lpad(F.col('InvoiceDate'), 16, '0'))
+		   .withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'dd/MM/yyyy HH:mm'))
+	
+	
 
 if __name__ == "__main__":
 	sc = SparkContext()
