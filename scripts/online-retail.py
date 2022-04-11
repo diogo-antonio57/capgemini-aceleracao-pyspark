@@ -12,7 +12,7 @@ def online_retail_qa(df):
 	# Qualidade InvoiceNo
 	df = df.withColumn(
 			'InvoiceNo_qa',
-			F.when(is_null('InvoiceNo'), 									'M')
+			F.when(is_null('InvoiceNo'),									'M')
 		 	 .when(~F.col('InvoiceNo').rlike('(^[0-9]{6}$)|(^C[0-9]{6}$)'), 'F')
 		)
 	
@@ -92,9 +92,19 @@ def online_retail_proc(df):
 	# Transformação UnitPrice
 	df = (df.withColumn('UnitPrice', F.regexp_replace(F.col('UnitPrice'), ',', '.').cast('float'))
 	 	    .withColumn('UnitPrice',
-				F.when((is_null('UnitPrice')) | (F.col('UnitPrice') < 0), 0)))
+				F.when((is_null('UnitPrice')) | (F.col('UnitPrice') < 0), 0)
+				 .otherwise(F.col('UnitPrice'))))
 
 	return df
+
+# Função report
+def online_retail_report(df):
+	
+	# Pergunta 1
+	(df.where(F.col('StockCode').rlike('^gift_0001')).groupBy(F.col('Description')).agg(F.sum(F.col('UnitPrice'))).agg(F.sum(F.col('sum(UnitPrice)'))).show())
+	
+	# Pergunta 2
+	#df.groupBy(F.month(F.col('InvoiceDate')))
 
 # Main
 if __name__ == "__main__":
@@ -103,7 +113,7 @@ if __name__ == "__main__":
 
 	schema_online_retail = StructType([
 					  StructField('InvoiceNo', StringType(),      True),
-					  StructField('StockCode', IntegerType(),     True),
+					  StructField('StockCode', StringType(),      True),
 					  StructField('Description', StringType(),    True),
 					  StructField('Quantity', IntegerType(),      True),
 					  StructField('InvoiceDate', StringType(),    True),
@@ -120,5 +130,6 @@ if __name__ == "__main__":
 
 	print(df.show(3))
 	df_quality = online_retail_qa(df)
-	df_proc    = online_retail_proc(df) 
+	df_proc    = online_retail_proc(df)
+	online_retail_report(df_proc) 
 	#print(df.show())
