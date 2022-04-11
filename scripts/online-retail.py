@@ -86,11 +86,17 @@ def online_retail_proc(df):
 		)
 	
 	# Tratamento InvoiceDate
-	df = df.withColumn('InvoiceDate', F.lpad(F.col('InvoiceDate'), 16, '0'))
-		   .withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'dd/MM/yyyy HH:mm'))
+	df = (df.withColumn('InvoiceDate', F.lpad(F.col('InvoiceDate'), 16, '0'))
+		    .withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'dd/MM/yyyy HH:mm')))
 	
-	
+	# Transformação UnitPrice
+	df = (df.withColumn('UnitPrice', F.regexp_replace(F.col('UnitPrice'), ',', '.').cast('float'))
+	 	    .withColumn('UnitPrice',
+				F.when((is_null('UnitPrice')) | (F.col('UnitPrice') < 0), 0)))
 
+	return df
+
+# Main
 if __name__ == "__main__":
 	sc = SparkContext()
 	spark = (SparkSession.builder.appName("Aceleração PySpark - Capgemini [Online Retail]"))
@@ -114,4 +120,5 @@ if __name__ == "__main__":
 
 	print(df.show(3))
 	df_quality = online_retail_qa(df)
-	print(df.show())
+	df_proc    = online_retail_proc(df) 
+	#print(df.show())
