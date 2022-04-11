@@ -10,7 +10,7 @@ def online_retail_qa(df):
 	# Qualidade InvoiceNo
 	df = df.withColumn(
 			'InvoiceNo_qa',
-			F.when(is_null('InvoiceNo'), 'M')
+			F.when(is_null('InvoiceNo'), 									'M')
 		 	 .when(~F.col('InvoiceNo').rlike('(^[0-9]{6}$)|(^C[0-9]{6}$)'), 'F')
 		)
 	
@@ -26,6 +26,27 @@ def online_retail_qa(df):
 	df = df.withColumn(
 			'Description_qa',
 			F.when(is_null('Description'), 'M')
+		)
+
+	# Qualidade Quantity
+	df = df.withColumn(
+			'Quantity_qa'
+			F.when(is_null(df),           'M')
+			 .when(F.col('Quantity') < 0, 'I')
+		)
+
+	# Qualidade InvoiceDate
+	df = df.withColumn(
+			'InvoiceDate_qa',
+			F.when(is_null('InvoiceDate'), 'M')
+		)
+	
+	# Qaulidade UnitPrice
+	df = df.withColumn(
+			'UnitPrice_qa',
+			F.when(is_null('UnitPrice'),   			 'M')
+			 .when(F.col('UnitPrice') < 0, 			 'I')
+			 .when(F.col('UnitPrice').rlike[a-zA-Z], 'A')
 		)
 
 if __name__ == "__main__":
