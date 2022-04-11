@@ -87,7 +87,7 @@ def online_retail_proc(df):
 	
 	# Tratamento InvoiceDate
 	df = (df.withColumn('InvoiceDate', F.lpad(F.col('InvoiceDate'), 16, '0'))
-		    .withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'dd/MM/yyyy HH:mm')))
+		    .withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'd/M/yyyy H:m')))
 	
 	# Transformação UnitPrice
 	df = (df.withColumn('UnitPrice', F.regexp_replace(F.col('UnitPrice'), ',', '.').cast('float'))
@@ -104,7 +104,7 @@ def online_retail_report(df):
 	(df.where(F.col('StockCode').rlike('^gift_0001')).groupBy(F.col('Description')).agg(F.sum(F.col('UnitPrice'))).agg(F.sum(F.col('sum(UnitPrice)'))).show())
 	
 	# Pergunta 2
-	#df.groupBy(F.month(F.col('InvoiceDate')))
+	df.groupBy(F.month(F.col('InvoiceDate'))).count().show()
 
 # Main
 if __name__ == "__main__":
