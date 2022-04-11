@@ -3,9 +3,11 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType
 
+# Função que verifica os nulos
 def is_null(coluna):
 	return (F.col(coluna).isNull()) | (F.col(coluna) == 'NA') | (F.col(coluna) == 'NaN')
 
+# Função de apontamento de qualidade
 def online_retail_qa(df):
 	# Qualidade InvoiceNo
 	df = df.withColumn(
@@ -30,8 +32,8 @@ def online_retail_qa(df):
 
 	# Qualidade Quantity
 	df = df.withColumn(
-			'Quantity_qa'
-			F.when(is_null(df),           'M')
+			'Quantity_qa',
+			F.when(is_null('Quantity'),   'M')
 			 .when(F.col('Quantity') < 0, 'I')
 		)
 
@@ -44,9 +46,9 @@ def online_retail_qa(df):
 	# Qualidade UnitPrice
 	df = df.withColumn(
 			'UnitPrice_qa',
-			F.when(is_null('UnitPrice'),   			 'M')
-			 .when(F.col('UnitPrice') < 0, 			 'I')
-			 .when(F.col('UnitPrice').rlike[a-zA-Z], 'A')
+			F.when(is_null('UnitPrice'),   				 'M')
+			 .when(F.col('UnitPrice') < 0, 				 'I')
+			 .when(F.col('UnitPrice').rlike('[a-zA-Z]'), 'A')
 		)
 
 	# Qualidade CustomerID
@@ -62,6 +64,19 @@ def online_retail_qa(df):
 			'Country_qa',
 			F.when(is_null('Country'), 'M')
 		)
+	
+	return df
+
+# Função de transformação
+def online_retail_proc(df):
+
+	# Tratamento InvoiceNo
+	df = df.withColumn(
+			'InvoiceNo_status',
+			F.when(F.col('InvoiceNo').rlike('C'), 'Cancelled')
+			 .when(F.col('InvoiceNo').rlike('^[0-9]{6}$'), 'Effective')
+		)
+	
 
 if __name__ == "__main__":
 	sc = SparkContext()
@@ -83,5 +98,7 @@ if __name__ == "__main__":
 		          .option("header", "true")
 		          .schema(schema_online_retail)
 		          .load("/home/spark/capgemini-aceleracao-pyspark/data/online-retail/online-retail.csv"))
-	#print(df.show())
-	online_retail_qa(df)
+
+	print(df.show(3))
+	df_quality = online_retail_qa(df)
+	print(df.show())
