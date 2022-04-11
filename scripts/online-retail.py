@@ -100,24 +100,70 @@ def online_retail_proc(df):
 def online_retail_report(df):
 	
 	# Pergunta 1
+	print('Pergunta 1')
+
 	(df.where(F.col('StockCode').rlike('^gift_0001'))
 	   .groupBy(F.col('Description'))
 	   .agg(F.sum(F.col('UnitPrice')))
 	   .agg( F.round(F.sum(F.col('sum(UnitPrice)')), 2).alias('Sum gift cards') )
 	   .show())
+
+	print('---------------------------------------------------------------------------')
 	
 	# Pergunta 2
+	print('Pergunta 2')
+	
 	(df.where( F.col('StockCode').rlike('^gift_0001') )
 	   .groupBy( F.month(F.col('InvoiceDate')).alias('InvoiceDate') )
 	   .agg( F.round(F.sum(F.col('UnitPrice')), 2).alias('sales') )
 	   .orderBy(F.col('InvoiceDate').asc())
 	   .show())
 
+	print('---------------------------------------------------------------------------')
+
 	# Pergunta 3
+	print('Pergunta 3')
+
 	(df.where( F.col('StockCode') == 'S' )
 	   .groupBy( F.col('StockCode') )
 	   .agg( F.round(F.sum(F.col('UnitPrice')), 2).alias('total value') )
 	   .show())
+
+	print('---------------------------------------------------------------------------')
+
+	# Pergunta 4
+	print('Pergunta 4')
+
+	(df.groupBy(F.col('Description'))
+	   .count()
+	   .orderBy(F.col('count').desc())
+	   .show(1))
+
+	print('---------------------------------------------------------------------------')
+
+	# Pergunta 5
+	print('Pergunta 5')
+
+	(df.groupBy( F.month(F.col('InvoiceDate')), F.col('Description') )
+	   .count()
+	   .orderBy(F.col('count').desc())
+	   .show(1))
+	
+	# Encontrando o maior valor de cada mes
+	df_join  = df.groupBy( F.col('Description').alias('d'), F.month(F.col('InvoiceDate')).alias('i') ).count()
+
+	df_join = df.join(df_join,
+					 (df['Description'] == df_join['d']) &
+					 (F.month(df['InvoiceDate']) == df_join['i']),
+					 'left')
+
+	(df_join.groupBy( F.month(F.col('InvoiceDate')) )
+	        .agg( F.max(F.struct('count', 'Description')).alias('struct') )
+		    .select( 'struct.Description', 'month(InvoiceDate)', 'struct.count' )
+		    .orderBy( 'month(InvoiceDate)' )
+		    .show())
+
+	print('---------------------------------------------------------------------------')
 
 # Main
 if __name__ == "__main__":
@@ -141,7 +187,7 @@ if __name__ == "__main__":
 		          .schema(schema_online_retail)
 		          .load("/home/spark/capgemini-aceleracao-pyspark/data/online-retail/online-retail.csv"))
 
-	print(df.show(3))
+	# print(df.show(3))
 	df_quality = online_retail_qa(df)
 	df_proc    = online_retail_proc(df)
 	online_retail_report(df_proc) 
