@@ -41,12 +41,26 @@ def online_retail_qa(df):
 			F.when(is_null('InvoiceDate'), 'M')
 		)
 	
-	# Qaulidade UnitPrice
+	# Qualidade UnitPrice
 	df = df.withColumn(
 			'UnitPrice_qa',
 			F.when(is_null('UnitPrice'),   			 'M')
 			 .when(F.col('UnitPrice') < 0, 			 'I')
 			 .when(F.col('UnitPrice').rlike[a-zA-Z], 'A')
+		)
+
+	# Qualidade CustomerID
+	df = df.withColumn(
+		   'CustomerID_qa',
+			F.when(is_null('CustomerID'),                    'M')
+			 .when(F.col('CustomerID').rlike('[a-zA-Z]'),    'A')
+			 .when(~F.col('CustomerID').rlike('^[0-9]{5}$'), 'F')
+		)
+	
+	# Qualidade Country
+	df = df.withColumn(
+			'Country_qa',
+			F.when(is_null('Country'), 'M')
 		)
 
 if __name__ == "__main__":
