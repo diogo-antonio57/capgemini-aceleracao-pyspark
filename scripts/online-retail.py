@@ -138,7 +138,7 @@ def online_retail_report(df):
 	   .count()
 	   .orderBy(F.col('count').desc())
 	   .show(1))
-	   
+
 	print('---------------------------------------------------------------------------')
 
 	# Pergunta 5
@@ -169,21 +169,15 @@ def online_retail_report(df):
 	# Pergunta 6
 	print('Pergunta 6\n')
 
-	df_join = df.groupBy( F.hour('InvoiceDate').alias('h') ).count()
-
-	df_join = df.join(df_join,
-					 (F.hour(df['InvoiceDate']) == df_join['h']),
-					 'left')
-	
-	(df_join.groupBy( F.col('h') )
-			.agg( F.max('count') )
-			.orderBy( F.col('max(count)').desc() )
-			.select( F.col('h').alias('hour'), F.col('max(count)').alias('count') )
-			.show(1))
-
-	del df_join
+	(df_proc.groupBy(F.hour('InvoiceDate'))
+			.agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
+			.orderBy(F.col('value').desc())
+			.show())
 	print('---------------------------------------------------------------------------')
-	
+
+	# Pergunta 7
+	# print('Pergunta 7')
+
 # Main
 if __name__ == "__main__":
 	sc = SparkContext()
@@ -212,4 +206,4 @@ if __name__ == "__main__":
 
 	# ---------------------------------------------------------------------------------------------------
 	# testes
-	# print(df_proc.filter( F.hour('InvoiceDate') == 7 ).count())
+	# print( df_proc.groupBy(F.hour('InvoiceDate')).agg(F.sum('UnitPrice')).show() )
