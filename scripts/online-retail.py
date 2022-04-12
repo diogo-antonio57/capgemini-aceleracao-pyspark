@@ -3,9 +3,11 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType
 
+
 # Função que verifica os nulos
 def is_null(coluna):
 	return (F.col(coluna).isNull()) | (F.col(coluna) == 'NA') | (F.col(coluna) == 'NaN')
+
 
 # Função de apontamento de qualidade
 def online_retail_qa(df):
@@ -67,6 +69,7 @@ def online_retail_qa(df):
 	
 	return df
 
+
 # Função de transformação
 def online_retail_proc(df):
 
@@ -95,6 +98,7 @@ def online_retail_proc(df):
 				 .otherwise(F.col('UnitPrice'))))
 
 	return df
+
 
 # Função report
 def online_retail_report(df):
@@ -182,6 +186,34 @@ def online_retail_report(df):
 	   .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
 	   .orderBy( F.col('value').desc() )
 	   .show(1))
+	print('---------------------------------------------------------------------------')
+
+	# Pergunta 8
+	print('Pergunta 8')
+
+	# Encontra o Ano com maior valor em vendas
+	df_best_year = (df.groupBy( F.year(F.col('InvoiceDate')) )
+	   	    	 	  .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
+	   			 	  .orderBy(F.col('value').desc())
+				 	  .select(F.col('year(InvoiceDate)').alias('year'))
+				 	  .limit(1) )
+	
+	# Junta com a coluna principal
+	df_best_year = df.join(df_best_year,
+					  (F.year(df['InvoiceDate']) == df_best_year['year']),
+					  'left')
+	
+	# Faz a soma do valor de vendas de cada produto em cada mês referente ao ano com maior valor de vendas
+	df_prod_month = (df_best_year.where(F.col('year').isNotNull())
+					   			 .groupBy('year', 'Description', F.month('InvoiceDate'))
+					   			 .agg(F.round(F.sum('UnitPrice'), 2).alias('value')) )
+
+	# Encontra o maior valor de vendas entre cada mês do ano
+	(df_prod_month.groupBy('month(InvoiceDate)')
+				  .agg( F.max(F.struct('value', 'Description', 'year')).alias('struct') )
+				  .select('struct.Description', 'struct.year', 'month(InvoiceDate)', 'struct.value')
+				  .show())
+
 
 # Main
 if __name__ == "__main__":
@@ -211,4 +243,9 @@ if __name__ == "__main__":
 
 	# ---------------------------------------------------------------------------------------------------
 	# testes
-	# print( df_proc.groupBy(F.hour('InvoiceDate')).agg(F.sum('UnitPrice')).show() )
+	# print( df_proc.where((F.year('InvoiceDate') == 2011) &
+	# 					 (F.month('InvoiceDate') == 2))
+	# 			  .groupBy('Description')
+	# 			  .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
+	# 			  .orderBy( F.col('value').desc() )
+	# 			  .show() )
