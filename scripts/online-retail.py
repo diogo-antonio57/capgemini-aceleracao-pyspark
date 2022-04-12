@@ -169,14 +169,19 @@ def online_retail_report(df):
 	# Pergunta 6
 	print('Pergunta 6\n')
 
-	(df_proc.groupBy(F.hour('InvoiceDate'))
-			.agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
-			.orderBy(F.col('value').desc())
-			.show())
+	(df.groupBy(F.hour('InvoiceDate'))
+	   .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
+	   .orderBy(F.col('value').desc())
+	   .show(1))
 	print('---------------------------------------------------------------------------')
 
 	# Pergunta 7
-	# print('Pergunta 7')
+	print('Pergunta 7')
+
+	(df.groupBy( F.month('InvoiceDate') )
+	   .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
+	   .orderBy( F.col('value').desc() )
+	   .show(1))
 
 # Main
 if __name__ == "__main__":
