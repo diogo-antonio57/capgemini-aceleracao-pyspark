@@ -138,7 +138,7 @@ def online_retail_report(df):
 	   .count()
 	   .orderBy(F.col('count').desc())
 	   .show(1))
-
+	   
 	print('---------------------------------------------------------------------------')
 
 	# Pergunta 5
@@ -163,8 +163,27 @@ def online_retail_report(df):
 		    .orderBy( 'month(InvoiceDate)' )
 		    .show())
 
+	del df_join
 	print('---------------------------------------------------------------------------')
 
+	# Pergunta 6
+	print('Pergunta 6\n')
+
+	df_join = df.groupBy( F.hour('InvoiceDate').alias('h') ).count()
+
+	df_join = df.join(df_join,
+					 (F.hour(df['InvoiceDate']) == df_join['h']),
+					 'left')
+	
+	(df_join.groupBy( F.col('h') )
+			.agg( F.max('count') )
+			.orderBy( F.col('max(count)').desc() )
+			.select( F.col('h').alias('hour'), F.col('max(count)').alias('count') )
+			.show(1))
+
+	del df_join
+	print('---------------------------------------------------------------------------')
+	
 # Main
 if __name__ == "__main__":
 	sc = SparkContext()
@@ -187,8 +206,10 @@ if __name__ == "__main__":
 		          .schema(schema_online_retail)
 		          .load("/home/spark/capgemini-aceleracao-pyspark/data/online-retail/online-retail.csv"))
 
-	# print(df.show(3))
 	df_quality = online_retail_qa(df)
 	df_proc    = online_retail_proc(df)
 	online_retail_report(df_proc) 
-	#print(df.show())
+
+	# ---------------------------------------------------------------------------------------------------
+	# testes
+	# print(df_proc.filter( F.hour('InvoiceDate') == 7 ).count())
