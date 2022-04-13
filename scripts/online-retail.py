@@ -215,37 +215,37 @@ def online_retail_report(df):
 	print('---------------------------------------------------------------------------')
 
 	# Pergunta 9
-	# print('Pergunta 9')
+	print('Pergunta 9')
 
-	# (df.groupBy('Country')
-	#    .agg(F.round(F.sum('UnitPrice'), 2).alias('value'))
-	#    .orderBy(F.col('value').desc())
-	#    .limit(1)
-	#    .show())
-	# print('---------------------------------------------------------------------------')
+	(df.groupBy('Country')
+	   .agg(F.round(F.sum('total_value'), 2).alias('value'))
+	   .orderBy(F.col('value').desc())
+	   .limit(1)
+	   .show())
+	print('---------------------------------------------------------------------------')
 
 	# Pergunta 10
-	# print('Pergunta 10')
+	print('Pergunta 10')
 
-	# (df.where(F.col('StockCode') == 'M')
-	#    .groupBy('Country')
-	#    .agg(F.round(F.sum('UnitPrice'), 2).alias('value'))
-	#    .orderBy(F.col('value').desc())
-	#    .limit(1)
-	#    .show())
+	(df.where(F.col('StockCode') == 'M')
+	   .groupBy('Country')
+	   .agg(F.round(F.sum('total_value'), 2).alias('value'))
+	   .orderBy(F.col('value').desc())
+	   .limit(1)
+	   .show())
 
-	# print('---------------------------------------------------------------------------')
+	print('---------------------------------------------------------------------------')
 
 	# Pergunta 11
-	# print('Pergunta 11')
+	print('Pergunta 11')
 
-	# (df.where(~F.col('InvoiceNo').rlike('C'))
-	#    .groupBy('InvoiceNo')
-	#    .agg(F.round(F.sum('UnitPrice'), 2).alias('value'))
-	#    .orderBy(F.col('value').desc())
-	#    .limit(1)
-	#    .show())
-	# print('---------------------------------------------------------------------------')
+	(df.where(~F.col('InvoiceNo').rlike('C'))
+	   .groupBy('InvoiceNo')
+	   .agg(F.round(F.sum('total_value'), 2).alias('value'))
+	   .orderBy(F.col('value').desc())
+	   .limit(1)
+	   .show())
+	print('---------------------------------------------------------------------------')
 
 	# Pergunta 12
 	# print('Pergunta 12')
