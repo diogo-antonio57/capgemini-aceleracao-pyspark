@@ -15,15 +15,12 @@ def online_retail_qa(df):
 	df = df.withColumn(
 			'InvoiceNo_qa',
 			F.when(is_null('InvoiceNo'),                                    'M')
-		 	 .when(~F.col('InvoiceNo').rlike('(^[0-9]{6}$)|(^C[0-9]{6}$)'), 'F')
 		)
 	
 	# Qualidade StockCode
 	df = df.withColumn(
 			'StockCode_qa',
 			F.when(is_null('StockCode'),                    'M')
-			 .when(F.col('StockCode').rlike('[a-zA-Z]'),    'A')
-			 .when(~F.col('StockCode').rlike('^[0-9]{5}$'), 'F')
 		)
 	
 	# Qualidade Description
@@ -103,10 +100,9 @@ def online_retail_proc(df):
 	return df
 
 
-# Função report
-def online_retail_report(df):
-	
-	# Pergunta 1
+# Funções report
+def pergunta1(df):
+
 	print('Pergunta 1')
 
 	(df.where(F.col('StockCode').rlike('^gift_0001'))
@@ -115,7 +111,8 @@ def online_retail_report(df):
 
 	print('---------------------------------------------------------------------------')
 	
-	# Pergunta 2
+def pergunta2(df):
+
 	print('Pergunta 2')
 	
 	(df.where( F.col('StockCode').rlike('^gift_0001') )
@@ -126,7 +123,8 @@ def online_retail_report(df):
 
 	print('---------------------------------------------------------------------------')
 
-	# Pergunta 3
+def pergunta3(df):
+	
 	print('Pergunta 3')
 
 	(df.where( F.col('StockCode') == 'S' )
@@ -136,7 +134,7 @@ def online_retail_report(df):
 
 	print('---------------------------------------------------------------------------')
 
-	# Pergunta 4
+def pergunta4(df):
 	print('Pergunta 4')
 
 	(df.where(~F.col('StockCode').rlike('C'))
@@ -148,7 +146,7 @@ def online_retail_report(df):
 
 	print('---------------------------------------------------------------------------')
 
-	# Pergunta 5
+def pergunta5(df):
 	print('Pergunta 5')
 
 	# Encontrando a quantidade de vendas de cada produto em cada mes
@@ -166,7 +164,7 @@ def online_retail_report(df):
 	del df_filter
 	print('---------------------------------------------------------------------------')
 
-	# Pergunta 6
+def pergunta6(df):
 	print('Pergunta 6\n')
 
 	(df.where(~F.col('StockCode').rlike('C'))
@@ -177,7 +175,7 @@ def online_retail_report(df):
 	   .show())
 	print('---------------------------------------------------------------------------')
 
-	# Pergunta 7
+def pergunta7(df):
 	print('Pergunta 7')
 
 	(df.groupBy( F.month('InvoiceDate') )
@@ -187,7 +185,7 @@ def online_retail_report(df):
 	   .show())
 	print('---------------------------------------------------------------------------')
 
-	# Pergunta 8
+def pergunta8(df):
 	print('Pergunta 8')
 
 	# Encontra o Ano com maior valor em vendas
@@ -214,7 +212,7 @@ def online_retail_report(df):
 				  .show())
 	print('---------------------------------------------------------------------------')
 
-	# Pergunta 9
+def pergunta9(df):
 	print('Pergunta 9')
 
 	(df.groupBy('Country')
@@ -224,7 +222,7 @@ def online_retail_report(df):
 	   .show())
 	print('---------------------------------------------------------------------------')
 
-	# Pergunta 10
+def pergunta10(df):
 	print('Pergunta 10')
 
 	(df.where(F.col('StockCode') == 'M')
@@ -236,7 +234,7 @@ def online_retail_report(df):
 
 	print('---------------------------------------------------------------------------')
 
-	# Pergunta 11
+def pergunta11(df):
 	print('Pergunta 11')
 
 	(df.where(~F.col('InvoiceNo').rlike('C'))
@@ -247,7 +245,7 @@ def online_retail_report(df):
 	   .show())
 	print('---------------------------------------------------------------------------')
 
-	# Pergunta 12
+def pergunta12(df):
 	print('Pergunta 12')
 
 	(df.where(~F.col('InvoiceNo').rlike('C'))
@@ -282,7 +280,19 @@ if __name__ == "__main__":
 	df_quality = online_retail_qa(df)
 	df_proc    = online_retail_proc(df)
 	df_proc.show(5)
-	online_retail_report(df_proc) 
+	
+	pergunta1(df_proc)
+	pergunta2(df_proc)
+	pergunta3(df_proc)
+	pergunta4(df_proc)
+	pergunta5(df_proc)
+	pergunta6(df_proc)
+	pergunta7(df_proc)
+	pergunta8(df_proc)
+	pergunta9(df_proc)
+	pergunta10(df_proc)
+	pergunta11(df_proc)
+	pergunta12(df_proc)
 
 	# ---------------------------------------------------------------------------------------------------
 	# testes
