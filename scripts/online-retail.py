@@ -139,7 +139,8 @@ def online_retail_report(df):
 	# Pergunta 4
 	print('Pergunta 4')
 
-	(df.groupBy(F.col('Description'))
+	(df.where(~F.col('StockCode').rlike('C'))
+	   .groupBy(F.col('Description'))
 	   .agg(F.sum('Quantity').alias('Quantity'))
 	   .orderBy(F.col('Quantity').desc())
 	   .limit(1)
@@ -151,7 +152,8 @@ def online_retail_report(df):
 	print('Pergunta 5')
 
 	# Encontrando a quantidade de vendas de cada produto em cada mes
-	df_filter  = (df.where(~F.col('Description').rlike('\?'))
+	df_filter  = (df.where((~F.col('Description').rlike('\?')) &
+						   (~F.col('StockCode').rlike('C')))
 					.groupBy( F.col('Description'), F.month(F.col('InvoiceDate')).alias('month') )
 					.agg(F.sum('Quantity').alias('count')))
 
@@ -165,14 +167,15 @@ def online_retail_report(df):
 	print('---------------------------------------------------------------------------')
 
 	# Pergunta 6
-	# print('Pergunta 6\n')
+	print('Pergunta 6\n')
 
-	# (df.groupBy(F.hour('InvoiceDate'))
-	#    .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
-	#    .orderBy(F.col('value').desc())
-	#    .limit(1)
-	#    .show())
-	# print('---------------------------------------------------------------------------')
+	(df.where(~F.col('StockCode').rlike('C'))
+	   .groupBy(F.hour('InvoiceDate'))
+	   .agg( F.round(F.sum('total_value'), 2).alias('value') )
+	   .orderBy(F.col('value').desc())
+	   .limit(1)
+	   .show())
+	print('---------------------------------------------------------------------------')
 
 	# Pergunta 7
 	# print('Pergunta 7')
