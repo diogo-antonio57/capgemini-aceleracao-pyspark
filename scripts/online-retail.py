@@ -89,13 +89,16 @@ def online_retail_proc(df):
 		)
 	
 	# Tratamento InvoiceDate
-	df = (df.withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'd/M/yyyy H:m')))
+	df = df.withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'd/M/yyyy H:m'))
 	
 	# Transformação UnitPrice
 	df = (df.withColumn('UnitPrice', F.regexp_replace(F.col('UnitPrice'), ',', '.').cast('float'))
 	 	    .withColumn('UnitPrice',
 				F.when((is_null('UnitPrice')) | (F.col('UnitPrice') < 0), 0)
 				 .otherwise(F.col('UnitPrice'))))
+
+	# Coluna valor total
+	df = df.withColumn('total_value', F.round(F.col('UnitPrice') * F.col('Quantity'), 2).cast('float'))
 
 	return df
 
@@ -248,6 +251,10 @@ def online_retail_report(df):
 	   .orderBy(F.col('value').desc())
 	   .limit(1)
 	   .show())
+	print('---------------------------------------------------------------------------')
+
+	# Pergunta 12
+	print('Pergunta 12')
 
 
 # Main
@@ -271,11 +278,14 @@ if __name__ == "__main__":
 		          .option("header", "true")
 		          .schema(schema_online_retail)
 		          .load("/home/spark/capgemini-aceleracao-pyspark/data/online-retail/online-retail.csv"))
+	df.show(5)
 
-	df_quality = online_retail_qa(df)
+	# df_quality = online_retail_qa(df)
 	df_proc    = online_retail_proc(df)
-	online_retail_report(df_proc) 
+	# online_retail_report(df_proc) 
+
+	df_proc.show(5)
 
 	# ---------------------------------------------------------------------------------------------------
 	# testes
-	# print( df_proc.where(F.col('StockCode') == 'M').groupBy('Country').count().show() )
+	# print( df_proc.groupBy('Country').count().show() )
