@@ -14,7 +14,7 @@ def online_retail_qa(df):
 	# Qualidade InvoiceNo
 	df = df.withColumn(
 			'InvoiceNo_qa',
-			F.when(is_null('InvoiceNo'),									'M')
+			F.when(is_null('InvoiceNo'),                                    'M')
 		 	 .when(~F.col('InvoiceNo').rlike('(^[0-9]{6}$)|(^C[0-9]{6}$)'), 'F')
 		)
 	
@@ -248,7 +248,13 @@ def online_retail_report(df):
 	print('---------------------------------------------------------------------------')
 
 	# Pergunta 12
-	# print('Pergunta 12')
+	print('Pergunta 12')
+
+	(df.where(~F.col('InvoiceNo').rlike('C'))
+	   .select('InvoiceNo', 'Quantity')
+	   .orderBy(F.col('Quantity').desc())
+	   .limit(1)
+	   .show())
 
 
 # Main
