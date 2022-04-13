@@ -169,7 +169,7 @@ def pergunta_6(df):
 
 	(df.where(~F.col('StockCode').rlike('C'))
 	   .groupBy(F.hour('InvoiceDate'))
-	   .agg(F.round(F.sum('total_value'), 2).alias('value'))
+	   .agg(F.round(F.sum(F.col('UnitPrice') * F.col('Quantity')), 2).alias('value'))
 	   .orderBy(F.col('value').desc())
 	   .limit(1)
 	   .show())
@@ -257,11 +257,11 @@ def pergunta_12(df):
 def pergunta_13(df):
 	print('Pergunta 13')
 
-	df.select('ClientID').distinct().count().show()
-
-	(df.groupBy('ClientID')
+	(df.where(F.col('CustomerID').isNotNull())
+	   .groupBy('CustomerID')
 	   .count()
 	   .orderBy(F.col('count').desc())
+	   .limit(1)
 	   .show())
 
 
@@ -303,7 +303,7 @@ if __name__ == "__main__":
 	pergunta_10(df_proc)
 	pergunta_11(df_proc)
 	pergunta_12(df_proc)
-	# pergunta_13(df_proc)
+	pergunta_13(df_proc)
 
 	# ---------------------------------------------------------------------------------------------------
 	# testes
