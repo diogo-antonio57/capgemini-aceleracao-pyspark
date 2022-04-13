@@ -178,41 +178,41 @@ def online_retail_report(df):
 	print('---------------------------------------------------------------------------')
 
 	# Pergunta 7
-	# print('Pergunta 7')
+	print('Pergunta 7')
 
-	# (df.groupBy( F.month('InvoiceDate') )
-	#    .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
-	#    .orderBy( F.col('value').desc() )
-	#    .limit(1)
-	#    .show())
-	# print('---------------------------------------------------------------------------')
+	(df.groupBy( F.month('InvoiceDate') )
+	   .agg( F.round(F.sum('total_value'), 2).alias('value') )
+	   .orderBy( F.col('value').desc() )
+	   .limit(1)
+	   .show())
+	print('---------------------------------------------------------------------------')
 
 	# Pergunta 8
-	# print('Pergunta 8')
+	print('Pergunta 8')
 
-	# # Encontra o Ano com maior valor em vendas
-	# df_best_year = (df.groupBy( F.year(F.col('InvoiceDate')).alias('year') )
-	#    	    	 	  .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
-	#    			 	  .orderBy(F.col('value').desc())
-	# 			 	  .select('year')
-	# 			 	  .limit(1) )
+	# Encontra o Ano com maior valor em vendas
+	df_best_year = (df.groupBy( F.year(F.col('InvoiceDate')).alias('year') )
+	   	    	 	  .agg( F.round(F.sum('total_value'), 2).alias('value') )
+	   			 	  .orderBy(F.col('value').desc())
+				 	  .select('year')
+				 	  .limit(1) )
 	
-	# # Junta com a coluna principal
-	# df_best_year = df.join(df_best_year,
-	# 				  (F.year(df['InvoiceDate']) == df_best_year['year']),
-	# 				  'left')
+	# Junta com a coluna principal
+	df_best_year = df.join(df_best_year,
+					  (F.year(df['InvoiceDate']) == df_best_year['year']),
+					  'left')
 	
-	# # Faz a soma do valor de vendas de cada produto em cada mês referente ao ano com maior valor de vendas
-	# df_prod_month = (df_best_year.where(F.col('year').isNotNull())
-	# 				   			 .groupBy('year', 'Description', F.month('InvoiceDate'))
-	# 				   			 .agg(F.round(F.sum('UnitPrice'), 2).alias('value')) )
+	# Faz a soma das vendas dos produtos em cada mês
+	df_prod_month = (df_best_year.where(F.col('year').isNotNull())
+					   			 .groupBy('year', 'Description', F.month('InvoiceDate'))
+					   			 .agg(F.round(F.sum('total_value'), 2).alias('value')) )
 
-	# # Encontra o maior valor de vendas entre cada mês do ano
-	# (df_prod_month.groupBy('month(InvoiceDate)')
-	# 			  .agg( F.max(F.struct('value', 'Description', 'year')).alias('struct') )
-	# 			  .select('struct.Description', 'struct.year', 'month(InvoiceDate)', 'struct.value')
-	# 			  .show())
-	# print('---------------------------------------------------------------------------')
+	# Encontra o maior valor de vendas entre cada mês do ano
+	(df_prod_month.groupBy('month(InvoiceDate)')
+				  .agg( F.max(F.struct('value', 'Description', 'year')).alias('struct') )
+				  .select('struct.Description', 'struct.year', 'month(InvoiceDate)', 'struct.value')
+				  .show())
+	print('---------------------------------------------------------------------------')
 
 	# Pergunta 9
 	# print('Pergunta 9')
@@ -280,4 +280,9 @@ if __name__ == "__main__":
 
 	# ---------------------------------------------------------------------------------------------------
 	# testes
-	# print( df_proc.where(F.col('Description') == '?').show() )
+	# print( df_proc.where((F.month('InvoiceDate') == 1) &
+	# 					 (F.year('InvoiceDate') == 2011))
+	# 			  .groupBy('Description')
+	# 			  .agg(F.sum('total_value'))
+	# 			  .orderBy(F.col('sum(total_value)').desc())
+	# 			  .show() )
