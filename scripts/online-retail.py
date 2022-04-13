@@ -14,13 +14,13 @@ def online_retail_qa(df):
 	# Qualidade InvoiceNo
 	df = df.withColumn(
 			'InvoiceNo_qa',
-			F.when(is_null('InvoiceNo'),                                    'M')
+			F.when(is_null('InvoiceNo'), 'M')
 		)
 	
 	# Qualidade StockCode
 	df = df.withColumn(
 			'StockCode_qa',
-			F.when(is_null('StockCode'),                    'M')
+			F.when(is_null('StockCode'), 'M')
 		)
 	
 	# Qualidade Description
@@ -91,8 +91,8 @@ def online_retail_proc(df):
 	# Transformação UnitPrice
 	df = (df.withColumn('UnitPrice', F.regexp_replace(F.col('UnitPrice'), ',', '.').cast('float'))
 	 	    .withColumn('UnitPrice',
-				F.when((is_null('UnitPrice')) | (F.col('UnitPrice') < 0), 0)
-				 .otherwise(F.col('UnitPrice'))))
+				        F.when((is_null('UnitPrice')) | (F.col('UnitPrice') < 0), 0)
+				         .otherwise(F.col('UnitPrice'))))
 
 	# Coluna valor total
 	df = df.withColumn('total_value', F.round(F.col('UnitPrice') * F.col('Quantity'), 2).cast('float'))
@@ -101,40 +101,43 @@ def online_retail_proc(df):
 
 
 # Funções report
-def pergunta1(df):
+def pergunta_1(df):
 
 	print('Pergunta 1')
 
 	(df.where(F.col('StockCode').rlike('^gift_0001'))
-	   .agg( F.round(F.sum(F.col('total_value')), 2).alias('Sum gift cards') )
+	   .agg(F.round(F.sum(F.col('total_value')), 2).alias('Sum gift cards'))
 	   .show())
 
 	print('---------------------------------------------------------------------------')
 	
-def pergunta2(df):
+
+def pergunta_2(df):
 
 	print('Pergunta 2')
 	
-	(df.where( F.col('StockCode').rlike('^gift_0001') )
-	   .groupBy( F.month(F.col('InvoiceDate')).alias('month') )
-	   .agg( F.round(F.sum(F.col('total_value')), 2).alias('sales') )
+	(df.where(F.col('StockCode').rlike('^gift_0001'))
+	   .groupBy(F.month(F.col('InvoiceDate')).alias('month'))
+	   .agg(F.round(F.sum(F.col('total_value')), 2).alias('sales'))
 	   .orderBy(F.col('month').asc())
 	   .show())
 
 	print('---------------------------------------------------------------------------')
 
-def pergunta3(df):
+
+def pergunta_3(df):
 	
 	print('Pergunta 3')
 
-	(df.where( F.col('StockCode') == 'S' )
+	(df.where(F.col('StockCode') == 'S')
 	   .groupBy( F.col('StockCode') )
-	   .agg( F.round(F.sum(F.col('total_value')), 2).alias('total value') )
+	   .agg(F.round(F.sum(F.col('total_value')), 2).alias('total value'))
 	   .show())
 
 	print('---------------------------------------------------------------------------')
 
-def pergunta4(df):
+
+def pergunta_4(df):
 	print('Pergunta 4')
 
 	(df.where(~F.col('StockCode').rlike('C'))
@@ -146,46 +149,45 @@ def pergunta4(df):
 
 	print('---------------------------------------------------------------------------')
 
-def pergunta5(df):
+
+def pergunta_5(df):
 	print('Pergunta 5')
 
-	# Encontrando a quantidade de vendas de cada produto em cada mes
-	df_filter  = (df.where((~F.col('Description').rlike('\?')) &
-						   (~F.col('StockCode').rlike('C')))
-					.groupBy( F.col('Description'), F.month(F.col('InvoiceDate')).alias('month') )
-					.agg(F.sum('Quantity').alias('count')))
+	(df_proc.where((~F.col('StockCode').rlike('C')) &
+				   (~F.col('Description').rlike('\?')))
+		    .groupBy('Description', F.month('InvoiceDate').alias('month'))
+		    .agg(F.sum('Quantity').alias('Quantity'))
+		    .orderBy(F.col('Quantity').desc())
+		    .dropDuplicates(['month'])
+		    .show())
 
-	(df_filter.groupBy('month')
-	          .agg( F.max(F.struct('count', 'Description')).alias('struct') )
-		      .select( 'struct.Description', 'month', 'struct.count' )
-		      .orderBy( 'month' )
-		      .show())
-
-	del df_filter
 	print('---------------------------------------------------------------------------')
 
-def pergunta6(df):
+
+def pergunta_6(df):
 	print('Pergunta 6\n')
 
 	(df.where(~F.col('StockCode').rlike('C'))
 	   .groupBy(F.hour('InvoiceDate'))
-	   .agg( F.round(F.sum('total_value'), 2).alias('value') )
+	   .agg(F.round(F.sum('total_value'), 2).alias('value'))
 	   .orderBy(F.col('value').desc())
 	   .limit(1)
 	   .show())
 	print('---------------------------------------------------------------------------')
 
-def pergunta7(df):
+
+def pergunta_7(df):
 	print('Pergunta 7')
 
-	(df.groupBy( F.month('InvoiceDate') )
-	   .agg( F.round(F.sum('total_value'), 2).alias('value') )
-	   .orderBy( F.col('value').desc() )
+	(df.groupBy(F.month('InvoiceDate'))
+	   .agg(F.round(F.sum('total_value'), 2).alias('value'))
+	   .orderBy(F.col('value').desc())
 	   .limit(1)
 	   .show())
 	print('---------------------------------------------------------------------------')
 
-def pergunta8(df):
+
+def pergunta_8(df):
 	print('Pergunta 8')
 
 	# Encontra o Ano com maior valor em vendas
@@ -212,7 +214,8 @@ def pergunta8(df):
 				  .show())
 	print('---------------------------------------------------------------------------')
 
-def pergunta9(df):
+
+def pergunta_9(df):
 	print('Pergunta 9')
 
 	(df.groupBy('Country')
@@ -222,7 +225,8 @@ def pergunta9(df):
 	   .show())
 	print('---------------------------------------------------------------------------')
 
-def pergunta10(df):
+
+def pergunta_10(df):
 	print('Pergunta 10')
 
 	(df.where(F.col('StockCode') == 'M')
@@ -234,7 +238,8 @@ def pergunta10(df):
 
 	print('---------------------------------------------------------------------------')
 
-def pergunta11(df):
+
+def pergunta_11(df):
 	print('Pergunta 11')
 
 	(df.where(~F.col('InvoiceNo').rlike('C'))
@@ -245,13 +250,25 @@ def pergunta11(df):
 	   .show())
 	print('---------------------------------------------------------------------------')
 
-def pergunta12(df):
+
+def pergunta_12(df):
 	print('Pergunta 12')
 
 	(df.where(~F.col('InvoiceNo').rlike('C'))
 	   .select('InvoiceNo', 'Quantity')
 	   .orderBy(F.col('Quantity').desc())
 	   .limit(1)
+	   .show())
+
+
+def pergunta_13(df):
+	print('Pergunta 13')
+
+	df.select('ClientID').distinct().count().show()
+
+	(df.groupBy('ClientID')
+	   .count()
+	   .orderBy(F.col('count').desc())
 	   .show())
 
 
@@ -281,24 +298,26 @@ if __name__ == "__main__":
 	df_proc    = online_retail_proc(df)
 	df_proc.show(5)
 	
-	pergunta1(df_proc)
-	pergunta2(df_proc)
-	pergunta3(df_proc)
-	pergunta4(df_proc)
-	pergunta5(df_proc)
-	pergunta6(df_proc)
-	pergunta7(df_proc)
-	pergunta8(df_proc)
-	pergunta9(df_proc)
-	pergunta10(df_proc)
-	pergunta11(df_proc)
-	pergunta12(df_proc)
+	pergunta_1(df_proc)
+	pergunta_2(df_proc)
+	pergunta_3(df_proc)
+	pergunta_4(df_proc)
+	pergunta_5(df_proc)
+	pergunta_6(df_proc)
+	pergunta_7(df_proc)
+	pergunta_8(df_proc)
+	pergunta_9(df_proc)
+	pergunta_10(df_proc)
+	pergunta_11(df_proc)
+	pergunta_12(df_proc)
+	pergunta_13(df_proc)
 
 	# ---------------------------------------------------------------------------------------------------
 	# testes
-	# print( df_proc.where((F.month('InvoiceDate') == 1) &
-	# 					 (F.year('InvoiceDate') == 2011))
-	# 			  .groupBy('Description')
-	# 			  .agg(F.sum('total_value'))
-	# 			  .orderBy(F.col('sum(total_value)').desc())
+	# print( df_proc.where((~F.col('StockCode').rlike('C')) &
+	# 					 (~F.col('Description').rlike('\?')))
+	# 			  .groupBy('Description', F.month('InvoiceDate').alias('month'))
+	# 			  .agg(F.sum('Quantity').alias('Quantity'))
+	# 			  .orderBy(F.col('Quantity').desc())
+	# 			  .dropDuplicates(['month'])
 	# 			  .show() )
