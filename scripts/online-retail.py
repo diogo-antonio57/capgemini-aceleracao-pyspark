@@ -110,9 +110,7 @@ def online_retail_report(df):
 	print('Pergunta 1')
 
 	(df.where(F.col('StockCode').rlike('^gift_0001'))
-	   .groupBy(F.col('Description'))
-	   .agg(F.sum(F.col('UnitPrice')))
-	   .agg( F.round(F.sum(F.col('sum(UnitPrice)')), 2).alias('Sum gift cards') )
+	   .agg( F.round(F.sum(F.col('total_value')), 2).alias('Sum gift cards') )
 	   .show())
 
 	print('---------------------------------------------------------------------------')
@@ -122,7 +120,7 @@ def online_retail_report(df):
 	
 	(df.where( F.col('StockCode').rlike('^gift_0001') )
 	   .groupBy( F.month(F.col('InvoiceDate')).alias('month') )
-	   .agg( F.round(F.sum(F.col('UnitPrice')), 2).alias('sales') )
+	   .agg( F.round(F.sum(F.col('total_value')), 2).alias('sales') )
 	   .orderBy(F.col('month').asc())
 	   .show())
 
@@ -133,128 +131,128 @@ def online_retail_report(df):
 
 	(df.where( F.col('StockCode') == 'S' )
 	   .groupBy( F.col('StockCode') )
-	   .agg( F.round(F.sum(F.col('UnitPrice')), 2).alias('total value') )
+	   .agg( F.round(F.sum(F.col('total_value')), 2).alias('total value') )
 	   .show())
 
 	print('---------------------------------------------------------------------------')
 
 	# Pergunta 4
-	print('Pergunta 4')
+	# print('Pergunta 4')
 
-	(df.groupBy(F.col('Description'))
-	   .count()
-	   .orderBy(F.col('count').desc())
-	   .show(1))
+	# (df.groupBy(F.col('Description'))
+	#    .count()
+	#    .orderBy(F.col('count').desc())
+	#    .show(1))
 
-	print('---------------------------------------------------------------------------')
+	# print('---------------------------------------------------------------------------')
 
 	# Pergunta 5
-	print('Pergunta 5')
+	# print('Pergunta 5')
 
-	(df.groupBy( F.month(F.col('InvoiceDate')), F.col('Description') )
-	   .count()
-	   .orderBy(F.col('count').desc())
-	   .show(1))
+	# (df.groupBy( F.month(F.col('InvoiceDate')), F.col('Description') )
+	#    .count()
+	#    .orderBy(F.col('count').desc())
+	#    .show(1))
 	
-	# Encontrando o maior valor de cada mes
-	df_join  = df.groupBy( F.col('Description').alias('d'), F.month(F.col('InvoiceDate')).alias('i') ).count()
+	# # Encontrando o maior valor de cada mes
+	# df_join  = df.groupBy( F.col('Description').alias('d'), F.month(F.col('InvoiceDate')).alias('i') ).count()
 
-	df_join = df.join(df_join,
-					 (df['Description'] == df_join['d']) &
-					 (F.month(df['InvoiceDate']) == df_join['i']),
-					 'left')
+	# df_join = df.join(df_join,
+	# 				 (df['Description'] == df_join['d']) &
+	# 				 (F.month(df['InvoiceDate']) == df_join['i']),
+	# 				 'left')
 
-	(df_join.groupBy( F.month(F.col('InvoiceDate')) )
-	        .agg( F.max(F.struct('count', 'Description')).alias('struct') )
-		    .select( 'struct.Description', 'month(InvoiceDate)', 'struct.count' )
-		    .orderBy( 'month(InvoiceDate)' )
-		    .show())
+	# (df_join.groupBy( F.month(F.col('InvoiceDate')) )
+	#         .agg( F.max(F.struct('count', 'Description')).alias('struct') )
+	# 	    .select( 'struct.Description', 'month(InvoiceDate)', 'struct.count' )
+	# 	    .orderBy( 'month(InvoiceDate)' )
+	# 	    .show())
 
-	del df_join
-	print('---------------------------------------------------------------------------')
+	# del df_join
+	# print('---------------------------------------------------------------------------')
 
 	# Pergunta 6
-	print('Pergunta 6\n')
+	# print('Pergunta 6\n')
 
-	(df.groupBy(F.hour('InvoiceDate'))
-	   .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
-	   .orderBy(F.col('value').desc())
-	   .limit(1)
-	   .show())
-	print('---------------------------------------------------------------------------')
+	# (df.groupBy(F.hour('InvoiceDate'))
+	#    .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
+	#    .orderBy(F.col('value').desc())
+	#    .limit(1)
+	#    .show())
+	# print('---------------------------------------------------------------------------')
 
 	# Pergunta 7
-	print('Pergunta 7')
+	# print('Pergunta 7')
 
-	(df.groupBy( F.month('InvoiceDate') )
-	   .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
-	   .orderBy( F.col('value').desc() )
-	   .limit(1)
-	   .show())
-	print('---------------------------------------------------------------------------')
+	# (df.groupBy( F.month('InvoiceDate') )
+	#    .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
+	#    .orderBy( F.col('value').desc() )
+	#    .limit(1)
+	#    .show())
+	# print('---------------------------------------------------------------------------')
 
 	# Pergunta 8
-	print('Pergunta 8')
+	# print('Pergunta 8')
 
-	# Encontra o Ano com maior valor em vendas
-	df_best_year = (df.groupBy( F.year(F.col('InvoiceDate')).alias('year') )
-	   	    	 	  .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
-	   			 	  .orderBy(F.col('value').desc())
-				 	  .select('year')
-				 	  .limit(1) )
+	# # Encontra o Ano com maior valor em vendas
+	# df_best_year = (df.groupBy( F.year(F.col('InvoiceDate')).alias('year') )
+	#    	    	 	  .agg( F.round(F.sum('UnitPrice'), 2).alias('value') )
+	#    			 	  .orderBy(F.col('value').desc())
+	# 			 	  .select('year')
+	# 			 	  .limit(1) )
 	
-	# Junta com a coluna principal
-	df_best_year = df.join(df_best_year,
-					  (F.year(df['InvoiceDate']) == df_best_year['year']),
-					  'left')
+	# # Junta com a coluna principal
+	# df_best_year = df.join(df_best_year,
+	# 				  (F.year(df['InvoiceDate']) == df_best_year['year']),
+	# 				  'left')
 	
-	# Faz a soma do valor de vendas de cada produto em cada mês referente ao ano com maior valor de vendas
-	df_prod_month = (df_best_year.where(F.col('year').isNotNull())
-					   			 .groupBy('year', 'Description', F.month('InvoiceDate'))
-					   			 .agg(F.round(F.sum('UnitPrice'), 2).alias('value')) )
+	# # Faz a soma do valor de vendas de cada produto em cada mês referente ao ano com maior valor de vendas
+	# df_prod_month = (df_best_year.where(F.col('year').isNotNull())
+	# 				   			 .groupBy('year', 'Description', F.month('InvoiceDate'))
+	# 				   			 .agg(F.round(F.sum('UnitPrice'), 2).alias('value')) )
 
-	# Encontra o maior valor de vendas entre cada mês do ano
-	(df_prod_month.groupBy('month(InvoiceDate)')
-				  .agg( F.max(F.struct('value', 'Description', 'year')).alias('struct') )
-				  .select('struct.Description', 'struct.year', 'month(InvoiceDate)', 'struct.value')
-				  .show())
-	print('---------------------------------------------------------------------------')
+	# # Encontra o maior valor de vendas entre cada mês do ano
+	# (df_prod_month.groupBy('month(InvoiceDate)')
+	# 			  .agg( F.max(F.struct('value', 'Description', 'year')).alias('struct') )
+	# 			  .select('struct.Description', 'struct.year', 'month(InvoiceDate)', 'struct.value')
+	# 			  .show())
+	# print('---------------------------------------------------------------------------')
 
 	# Pergunta 9
-	print('Pergunta 9')
+	# print('Pergunta 9')
 
-	(df.groupBy('Country')
-	   .agg(F.round(F.sum('UnitPrice'), 2).alias('value'))
-	   .orderBy(F.col('value').desc())
-	   .limit(1)
-	   .show())
-	print('---------------------------------------------------------------------------')
+	# (df.groupBy('Country')
+	#    .agg(F.round(F.sum('UnitPrice'), 2).alias('value'))
+	#    .orderBy(F.col('value').desc())
+	#    .limit(1)
+	#    .show())
+	# print('---------------------------------------------------------------------------')
 
 	# Pergunta 10
-	print('Pergunta 10')
+	# print('Pergunta 10')
 
-	(df.where(F.col('StockCode') == 'M')
-	   .groupBy('Country')
-	   .agg(F.round(F.sum('UnitPrice'), 2).alias('value'))
-	   .orderBy(F.col('value').desc())
-	   .limit(1)
-	   .show())
+	# (df.where(F.col('StockCode') == 'M')
+	#    .groupBy('Country')
+	#    .agg(F.round(F.sum('UnitPrice'), 2).alias('value'))
+	#    .orderBy(F.col('value').desc())
+	#    .limit(1)
+	#    .show())
 
-	print('---------------------------------------------------------------------------')
+	# print('---------------------------------------------------------------------------')
 
 	# Pergunta 11
-	print('Pergunta 11')
+	# print('Pergunta 11')
 
-	(df.where(~F.col('InvoiceNo').rlike('C'))
-	   .groupBy('InvoiceNo')
-	   .agg(F.round(F.sum('UnitPrice'), 2).alias('value'))
-	   .orderBy(F.col('value').desc())
-	   .limit(1)
-	   .show())
-	print('---------------------------------------------------------------------------')
+	# (df.where(~F.col('InvoiceNo').rlike('C'))
+	#    .groupBy('InvoiceNo')
+	#    .agg(F.round(F.sum('UnitPrice'), 2).alias('value'))
+	#    .orderBy(F.col('value').desc())
+	#    .limit(1)
+	#    .show())
+	# print('---------------------------------------------------------------------------')
 
 	# Pergunta 12
-	print('Pergunta 12')
+	# print('Pergunta 12')
 
 
 # Main
@@ -280,12 +278,12 @@ if __name__ == "__main__":
 		          .load("/home/spark/capgemini-aceleracao-pyspark/data/online-retail/online-retail.csv"))
 	df.show(5)
 
-	# df_quality = online_retail_qa(df)
+	df_quality = online_retail_qa(df)
 	df_proc    = online_retail_proc(df)
-	# online_retail_report(df_proc) 
+	online_retail_report(df_proc) 
 
-	df_proc.show(5)
+	# df_proc.show(5)
 
 	# ---------------------------------------------------------------------------------------------------
 	# testes
-	# print( df_proc.groupBy('Country').count().show() )
+	# print( df_proc.where(F.col('StockCode') == 'S').show(99) )
