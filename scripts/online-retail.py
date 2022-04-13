@@ -191,27 +191,20 @@ def pergunta_8(df):
 	print('Pergunta 8')
 
 	# Encontra o Ano com maior valor em vendas
-	df_best_year = (df.groupBy( F.year(F.col('InvoiceDate')).alias('year') )
-	   	    	 	  .agg( F.round(F.sum('total_value'), 2).alias('value') )
-	   			 	  .orderBy(F.col('value').desc())
-				 	  .select('year')
-				 	  .limit(1) )
-	
-	# Junta com a coluna principal
-	df_best_year = df.join(df_best_year,
-					  (F.year(df['InvoiceDate']) == df_best_year['year']),
-					  'left')
-	
-	# Faz a soma das vendas dos produtos em cada mês
-	df_prod_month = (df_best_year.where(F.col('year').isNotNull())
-					   			 .groupBy('year', 'Description', F.month('InvoiceDate'))
-					   			 .agg(F.round(F.sum('total_value'), 2).alias('value')) )
+	best_year = (df.groupBy( F.year(F.col('InvoiceDate')).alias('year') )
+	   	    	   .agg( F.round(F.sum('total_value'), 2).alias('value') )
+	   			   .orderBy(F.col('value').desc())
+				   .select('year')
+				   .limit(1)
+				   .collect()[0][0] )
 
-	# Encontra o maior valor de vendas entre cada mês do ano
-	(df_prod_month.groupBy('month(InvoiceDate)')
-				  .agg( F.max(F.struct('value', 'Description', 'year')).alias('struct') )
-				  .select('struct.Description', 'struct.year', 'month(InvoiceDate)', 'struct.value')
-				  .show())
+	df_prod_month = (df.where((~F.col('StockCode').rlike('C')) &
+							  (F.year('InvoiceDate') ==  int(best_year)))
+					   .groupBy('Description', F.month('InvoiceDate').alias('month'))
+					   .agg(F.round(F.sum('total_value'), 2).alias('value'))
+					   .orderBy(F.col('value').desc())
+					   .dropDuplicates(['month'])
+					   .show())
 	print('---------------------------------------------------------------------------')
 
 
@@ -310,7 +303,7 @@ if __name__ == "__main__":
 	pergunta_10(df_proc)
 	pergunta_11(df_proc)
 	pergunta_12(df_proc)
-	pergunta_13(df_proc)
+	# pergunta_13(df_proc)
 
 	# ---------------------------------------------------------------------------------------------------
 	# testes
