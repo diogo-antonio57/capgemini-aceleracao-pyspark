@@ -193,16 +193,30 @@ def pergunta_8(df):
 
 	# Encontra o Ano com maior valor em vendas
 	best_year = (df.groupBy( F.year(F.col('InvoiceDate')).alias('year') )
-	   	    	   .agg( F.round(F.sum('total_value'), 2).alias('value') )
+	   	    	   .agg( F.round(F.sum('Quantity'), 2).alias('value') )
 	   			   .orderBy(F.col('value').desc())
 				   .select('year')
 				   .limit(1)
 				   .collect()[0][0] )
 
+	# Maior valor vendido por mês
+	print('Maior valor vendido')
 	df_prod_month = (df.where((~F.col('StockCode').rlike('C')) &
-							  (F.year('InvoiceDate') ==  int(best_year)))
-					   .groupBy('Description', F.month('InvoiceDate').alias('month'))
+							  (F.year('InvoiceDate') ==  int(best_year)) &
+							  (~F.col('Description').rlike('\?')))
+					   .groupBy('Description', F.year('InvoiceDate'), F.month('InvoiceDate').alias('month'))
 					   .agg(F.round(F.sum('total_value'), 2).alias('value'))
+					   .orderBy(F.col('value').desc())
+					   .dropDuplicates(['month'])
+					   .show())
+
+	# Mais vendidos por mês
+	print('Mais vendidos')
+	df_prod_month = (df.where((~F.col('StockCode').rlike('C')) &
+							  (F.year('InvoiceDate') ==  int(best_year)) &
+							  (~F.col('Description').rlike('\?')))
+					   .groupBy('Description', F.year('InvoiceDate'), F.month('InvoiceDate').alias('month'))
+					   .agg(F.round(F.sum('Quantity'), 2).alias('value'))
 					   .orderBy(F.col('value').desc())
 					   .dropDuplicates(['month'])
 					   .show())
@@ -224,7 +238,8 @@ def pergunta_9(df):
 def pergunta_10(df):
 	print('Pergunta 10')
 
-	(df.where(F.col('StockCode') == 'M')
+	(df.where((F.col('StockCode') == 'M') &
+			  (~F.col('InvoiceNo').rlike('C')))
 	   .groupBy('Country')
 	   .agg(F.round(F.sum('total_value'), 2).alias('value'))
 	   .orderBy(F.col('value').desc())
@@ -254,6 +269,7 @@ def pergunta_12(df):
 	   .orderBy(F.col('Quantity').desc())
 	   .limit(1)
 	   .show())
+	print('---------------------------------------------------------------------------')
 
 
 def pergunta_13(df):
