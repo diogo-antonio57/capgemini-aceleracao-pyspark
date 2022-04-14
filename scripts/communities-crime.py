@@ -140,14 +140,42 @@ def df_schema():
 
 
 def pergunta_1(df):
-	(df.select('communityname', 'PolicOperBudg')
+	(df.where(F.col('PolicOperBudg').isNotNull())
+	   .select('communityname', 'PolicOperBudg')
 	   .orderBy(F.col('PolicOperBudg').desc())
 	   .limit(1)
 	   .show())
 
+
 def pergunta_2(df):
-	(df.select('communityname', 'ViolentCrimesPerPop')
-	   .orderBy(F.col('ViolentCrimesPerPop').desc())
+	(df.groupBy('communityname')
+	   .agg(F.round(F.sum('ViolentCrimesPerPop'), 2).alias('violent_crimes'))
+	   .orderBy(F.col('violent_crimes').desc())
+	   .limit(1)
+	   .show())
+
+
+def pergunta_3(df):
+	(df.groupBy('communityname')
+	   .agg(F.round(F.sum('population'), 2).alias('population'))
+	   .orderBy(F.col('population').desc())
+	   .limit(1)
+	   .show())
+
+
+def pergunta_4(df):
+	(df.groupBy('Communityname')
+	   .agg(F.round(F.sum('racepctblack'), 2).alias('populacao_negra'))
+	   .orderBy(F.col('populacao_negra').desc())
+	   .limit(1)
+	   .show())
+
+
+def pergunta_5(df):
+	(df.groupBy('communityname')
+	   .agg(F.round(F.sum('pctWWage'), 2).alias('perc_salariados'))
+	   .orderBy(F.col('perc_salariados').desc())
+	   .limit(1)
 	   .show())
 
 if __name__ == "__main__":
@@ -163,3 +191,7 @@ if __name__ == "__main__":
 		          .load("/home/spark/capgemini-aceleracao-pyspark/data/communities-crime/communities-crime.csv"))
 
 	pergunta_1(df)
+	pergunta_2(df)
+	pergunta_3(df)
+	pergunta_4(df)
+	pergunta_5(df)
