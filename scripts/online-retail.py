@@ -193,33 +193,33 @@ def pergunta_8(df):
 
 	# Encontra o Ano com maior valor em vendas
 	best_year = (df.groupBy( F.year(F.col('InvoiceDate')).alias('year') )
-	   	    	   .agg( F.round(F.sum('Quantity'), 2).alias('value') )
-	   			   .orderBy(F.col('value').desc())
-				   .select('year')
-				   .limit(1)
-				   .collect()[0][0] )
+                   .agg( F.round(F.sum('Quantity'), 2).alias('value') )
+                   .orderBy(F.col('value').desc())
+                   .select('year')
+                   .limit(1)
+                   .collect()[0][0] )
 
 	# Maior valor vendido por mês
 	print('Maior valor vendido')
 	df_prod_month = (df.where((~F.col('StockCode').rlike('C')) &
-							  (F.year('InvoiceDate') ==  int(best_year)) &
-							  (~F.col('Description').rlike('\?')))
-					   .groupBy('Description', F.year('InvoiceDate'), F.month('InvoiceDate').alias('month'))
-					   .agg(F.round(F.sum('total_value'), 2).alias('value'))
-					   .orderBy(F.col('value').desc())
-					   .dropDuplicates(['month'])
-					   .show())
+                              (F.year('InvoiceDate') ==  int(best_year)) &
+                              (~F.col('Description').rlike('\?')))
+                       .groupBy('Description', F.year('InvoiceDate'), F.month('InvoiceDate').alias('month'))
+                       .agg(F.round(F.sum('total_value'), 2).alias('value'))
+                       .orderBy(F.col('value').desc())
+                       .dropDuplicates(['month'])
+	                   .show())
 
 	# Mais vendidos por mês
 	print('Mais vendidos')
 	df_prod_month = (df.where((~F.col('StockCode').rlike('C')) &
-							  (F.year('InvoiceDate') ==  int(best_year)) &
-							  (~F.col('Description').rlike('\?')))
-					   .groupBy('Description', F.year('InvoiceDate'), F.month('InvoiceDate').alias('month'))
-					   .agg(F.round(F.sum('Quantity'), 2).alias('value'))
-					   .orderBy(F.col('value').desc())
-					   .dropDuplicates(['month'])
-					   .show())
+                              (F.year('InvoiceDate') ==  int(best_year)) &
+                              (~F.col('Description').rlike('\?')))
+                       .groupBy('Description', F.year('InvoiceDate'), F.month('InvoiceDate').alias('month'))
+                       .agg(F.round(F.sum('Quantity'), 2).alias('value'))
+                       .orderBy(F.col('value').desc())
+                       .dropDuplicates(['month'])
+                       .show())
 	print('---------------------------------------------------------------------------')
 
 
