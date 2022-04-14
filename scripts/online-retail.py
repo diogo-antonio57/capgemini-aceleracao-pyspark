@@ -73,7 +73,7 @@ def online_retail_proc(df):
 	# Tratamento InvoiceNo
 	df = df.withColumn(
 			'InvoiceNo_status',
-			F.when(F.col('InvoiceNo').rlike('C'), 'Cancelled')
+			F.when(F.col('InvoiceNo').rlike('C'), 'Cancelled')  # C é considerado como compra cancelada
 			 .when(F.col('InvoiceNo').rlike('^[0-9]{6}$'), 'Effective')
 		)
 	
@@ -179,7 +179,8 @@ def pergunta_6(df):
 def pergunta_7(df):
 	print('Pergunta 7')
 
-	(df.groupBy(F.month('InvoiceDate'))
+	(df.where(~F.col('StockCode').rlike('C'))
+	   .groupBy(F.month('InvoiceDate'))
 	   .agg(F.round(F.sum('total_value'), 2).alias('value'))
 	   .orderBy(F.col('value').desc())
 	   .limit(1)
@@ -211,7 +212,8 @@ def pergunta_8(df):
 def pergunta_9(df):
 	print('Pergunta 9')
 
-	(df.groupBy('Country')
+	(df.where(~F.col('StockCode').rlike('C'))
+	   .groupBy('Country')
 	   .agg(F.round(F.sum('total_value'), 2).alias('value'))
 	   .orderBy(F.col('value').desc())
 	   .limit(1)
@@ -257,7 +259,8 @@ def pergunta_12(df):
 def pergunta_13(df):
 	print('Pergunta 13')
 
-	(df.where(F.col('CustomerID').isNotNull())
+	(df.where((F.col('CustomerID').isNotNull()) &
+			  (~F.col('StockCode').rlike('C')))
 	   .groupBy('CustomerID')
 	   .count()
 	   .orderBy(F.col('count').desc())
@@ -291,6 +294,7 @@ if __name__ == "__main__":
 	df_proc    = online_retail_proc(df)
 	df_proc.show(5)
 	
+	# chamando as peguntas
 	pergunta_1(df_proc)
 	pergunta_2(df_proc)
 	pergunta_3(df_proc)
@@ -305,12 +309,3 @@ if __name__ == "__main__":
 	pergunta_12(df_proc)
 	pergunta_13(df_proc)
 
-	# ---------------------------------------------------------------------------------------------------
-	# testes
-	# print( df_proc.where((~F.col('StockCode').rlike('C')) &
-	# 					 (~F.col('Description').rlike('\?')))
-	# 			  .groupBy('Description', F.month('InvoiceDate').alias('month'))
-	# 			  .agg(F.sum('Quantity').alias('Quantity'))
-	# 			  .orderBy(F.col('Quantity').desc())
-	# 			  .dropDuplicates(['month'])
-	# 			  .show() )
