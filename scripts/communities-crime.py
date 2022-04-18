@@ -223,7 +223,16 @@ def pergunta_7(df):
 
 
 def pergunta_8(df):
-    df.agg(F.round(F.corr(('PctPolicWhite'), ('PolicOperBudg')), 2).alias('correlacao')).show()
+    df.agg(F.round(F.corr('PctPolicWhite', 'PolicOperBudg'), 2).alias('correlacao')).show()
+
+
+def pergunta_9(df):
+    df.agg(F.round(F.corr('population', 'PolicOperBudg'), 2).alias('correlacao')).show()
+
+
+def pergunta_10(df):
+    df.agg(F.round(F.corr('population', 'ViolentCrimesPerPop'), 2).alias('correlacao')).show()
+
 
 if __name__ == "__main__":
     sc = SparkContext()
@@ -248,3 +257,5 @@ if __name__ == "__main__":
 	pergunta_6(df_tr)
     pergunta_7(df_tr)
     pergunta_8(df_tr)
+    pergunta_9(df_tr)
+    pergunta_10(df_tr)
