@@ -138,7 +138,6 @@ def df_schema():
 
 	return schema_df
 
-
 def communities_crime_tr(df):
     df = df.withColumn('PolicOperBudg',
                         F.when(F.col('PolicOperBudg').isNull(), 0)
@@ -167,20 +166,32 @@ def communities_crime_tr(df):
     df = df.withColumn('agePct12t29',
                         F.when(F.col('agePct12t29').isNull(), 0)
                          .otherwise(F.col('agePct12t29')))
+
+    df = df.withColumn('medIncome',
+                        F.when(F.col('medIncome').isNull(), 0)
+                         .otherwise(F.col('medIncome')))
     
     return df
 
 
 def pergunta_1(df):
-	(df.where(F.col('PolicOperBudg').isNotNull())
-	   .select('communityname', 'PolicOperBudg')
+    print('Pergunta 1')
+    (df.where((F.col('PolicOperBudg').isNotNull()) &
+              (F.col('state').isNotNull()) &
+              (F.col('communityname').isNotNull()))
+	   .groupBy('state', 'communityname')
+       .agg(F.round(F.sum('PolicOperBudg'), 2).alias('PolicOperBudg'))
 	   .orderBy(F.col('PolicOperBudg').desc())
 	   .limit(1)
 	   .show())
 
 
 def pergunta_2(df):
-	(df.groupBy('communityname')
+    print('Pergunta 2')
+    (df.where((F.col('ViolentCrimesPerPop').isNotNull()) &
+              (F.col('state').isNotNull()) &
+              (F.col('communityname').isNotNull()))
+       .groupBy('state', 'communityname')
 	   .agg(F.round(F.sum('ViolentCrimesPerPop'), 2).alias('violent_crimes'))
 	   .orderBy(F.col('violent_crimes').desc())
 	   .limit(1)
@@ -188,7 +199,11 @@ def pergunta_2(df):
 
 
 def pergunta_3(df):
-	(df.groupBy('communityname')
+    print('Pergunta 3')
+    (df.where((F.col('population').isNotNull()) &
+              (F.col('state').isNotNull()) &
+              (F.col('communityname').isNotNull()))
+       .groupBy('state', 'communityname')
 	   .agg(F.round(F.sum('population'), 2).alias('population'))
 	   .orderBy(F.col('population').desc())
 	   .limit(1)
@@ -196,7 +211,11 @@ def pergunta_3(df):
 
 
 def pergunta_4(df):
-	(df.groupBy('Communityname')
+    print('Pergunta 4')
+    (df.where((F.col('racepctblack').isNotNull()) &
+              (F.col('state').isNotNull()) &
+              (F.col('communityname').isNotNull()))
+       .groupBy('state', 'Communityname')
 	   .agg(F.round(F.sum('racepctblack'), 2).alias('populacao_negra'))
 	   .orderBy(F.col('populacao_negra').desc())
 	   .limit(1)
@@ -204,7 +223,11 @@ def pergunta_4(df):
 
 
 def pergunta_5(df):
-	(df.groupBy('communityname')
+    print('Pergunta 5')
+    (df.where((F.col('pctWWage').isNotNull()) &
+              (F.col('state').isNotNull()) &
+              (F.col('communityname').isNotNull()))
+       .groupBy('state', 'communityname')
 	   .agg(F.round(F.sum('pctWWage'), 2).alias('perc_salariados'))
 	   .orderBy(F.col('perc_salariados').desc())
 	   .limit(1)
@@ -212,26 +235,47 @@ def pergunta_5(df):
 
 
 def pergunta_6(df):
-	(df.groupBy('communityname')
+    print('Pergunta 6')
+    (df.where((F.col('agePct12t29').isNotNull()) &
+              (F.col('state').isNotNull()) &
+              (F.col('communityname').isNotNull()))
+       .groupBy('state', 'communityname')
 	   .agg(F.round(F.sum('agePct12t29'), 2).alias('jovens'))
 	   .orderBy(F.col('jovens').desc())
 	   .limit(1)
 	   .show())
 
 def pergunta_7(df):
-	df.agg(F.round(F.corr('PolicOperBudg', 'ViolentCrimesPerPop'), 2).alias('correlacao')).show()
+    print('Pergunta 7')
+    df.agg(F.round(F.corr('PolicOperBudg', 'ViolentCrimesPerPop'), 2).alias('correlacao')).show()
 
 
 def pergunta_8(df):
+    print('Pergunta 8')
     df.agg(F.round(F.corr('PctPolicWhite', 'PolicOperBudg'), 2).alias('correlacao')).show()
 
 
 def pergunta_9(df):
+    print('Pergunta 9')
     df.agg(F.round(F.corr('population', 'PolicOperBudg'), 2).alias('correlacao')).show()
 
 
 def pergunta_10(df):
+    print('Pergunta 10')
     df.agg(F.round(F.corr('population', 'ViolentCrimesPerPop'), 2).alias('correlacao')).show()
+
+def pergunta_11(df):
+    print('Pergunta 11')
+    df.agg(F.round(F.corr('medIncome', 'ViolentCrimesPerPop'), 2).alias('correlacao')).show()
+
+
+def pergunta_12(df):
+    print('Pergunta 12')
+    (df.select('state', 'communityname', 'racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp', 'ViolentCrimesPerPop')
+       .orderBy(F.col('ViolentCrimesPerPop').desc(), F.col('racepctblack').desc(), 
+                F.col('racePctWhite').desc(),F.col('racePctAsian').desc(), F.col('racePctHisp').desc())
+       .limit(10)
+       .show())
 
 
 if __name__ == "__main__":
@@ -249,13 +293,15 @@ if __name__ == "__main__":
     # Transformação
     df_tr = communities_crime_tr(df) 
 
-	pergunta_1(df_tr)
-	pergunta_2(df_tr)
-	pergunta_3(df_tr)
-	pergunta_4(df_tr)
-	pergunta_5(df_tr)
-	pergunta_6(df_tr)
+    pergunta_1(df_tr)
+    pergunta_2(df_tr)
+    pergunta_3(df_tr)
+    pergunta_4(df_tr)
+    pergunta_5(df_tr)
+    pergunta_6(df_tr)
     pergunta_7(df_tr)
     pergunta_8(df_tr)
     pergunta_9(df_tr)
     pergunta_10(df_tr)
+    pergunta_11(df_tr)
+    pergunta_12(df_tr)
