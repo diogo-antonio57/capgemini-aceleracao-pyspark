@@ -139,6 +139,38 @@ def df_schema():
 	return schema_df
 
 
+def communities_crime_tr(df):
+    df = df.withColumn('PolicOperBudg',
+                        F.when(F.col('PolicOperBudg').isNull(), 0)
+                         .otherwise(F.col('PolicOperBudg')))
+    
+    df = df.withColumn('PctPolicWhite',
+                        F.when(F.col('PctPolicWhite').isNull(), 0)
+                         .otherwise(F.col('PctPolicWhite')))
+
+    df = df.withColumn('ViolentCrimesPerPop',
+                        F.when(F.col('ViolentCrimesPerPop').isNull(), 0)
+                         .otherwise(F.col('ViolentCrimesPerPop')))
+    
+    df = df.withColumn('population',
+                        F.when(F.col('population').isNull(), 0)
+                         .otherwise(F.col('population')))
+
+    df = df.withColumn('racepctblack',
+                        F.when(F.col('racepctblack').isNull(), 0)
+                         .otherwise(F.col('racepctblack')))
+
+    df = df.withColumn('pctWWage',
+                        F.when(F.col('pctWWage').isNull(), 0)
+                         .otherwise(F.col('pctWWage')))
+    
+    df = df.withColumn('agePct12t29',
+                        F.when(F.col('agePct12t29').isNull(), 0)
+                         .otherwise(F.col('agePct12t29')))
+    
+    return df
+
+
 def pergunta_1(df):
 	(df.where(F.col('PolicOperBudg').isNotNull())
 	   .select('communityname', 'PolicOperBudg')
@@ -178,20 +210,41 @@ def pergunta_5(df):
 	   .limit(1)
 	   .show())
 
+
+def pergunta_6(df):
+	(df.groupBy('communityname')
+	   .agg(F.round(F.sum('agePct12t29'), 2).alias('jovens'))
+	   .orderBy(F.col('jovens').desc())
+	   .limit(1)
+	   .show())
+
+def pergunta_7(df):
+	df.agg(F.round(F.corr('PolicOperBudg', 'ViolentCrimesPerPop'), 2).alias('correlacao')).show()
+
+
+def pergunta_8(df):
+    df.agg(F.round(F.corr(('PctPolicWhite'), ('PolicOperBudg')), 2).alias('correlacao')).show()
+
 if __name__ == "__main__":
-	sc = SparkContext()
-	spark = (SparkSession.builder.appName("Aceleração PySpark - Capgemini [Communities & Crime]"))
+    sc = SparkContext()
+    spark = (SparkSession.builder.appName("Aceleração PySpark - Capgemini [Communities & Crime]"))
 
-	schema_communities_crime = df_schema()
+    schema_communities_crime = df_schema()
 
-	df = (spark.getOrCreate().read
+    df = (spark.getOrCreate().read
 		          .format("csv")
 		          .option("header", "true")
 		          .schema(schema_communities_crime)
 		          .load("/home/spark/capgemini-aceleracao-pyspark/data/communities-crime/communities-crime.csv"))
 
-	pergunta_1(df)
-	pergunta_2(df)
-	pergunta_3(df)
-	pergunta_4(df)
-	pergunta_5(df)
+    # Transformação
+    df_tr = communities_crime_tr(df) 
+
+	pergunta_1(df_tr)
+	pergunta_2(df_tr)
+	pergunta_3(df_tr)
+	pergunta_4(df_tr)
+	pergunta_5(df_tr)
+	pergunta_6(df_tr)
+    pergunta_7(df_tr)
+    pergunta_8(df_tr)
