@@ -272,8 +272,7 @@ def pergunta_11(df):
 def pergunta_12(df):
     print('Pergunta 12')
     (df.select('state', 'communityname', 'racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp', 'ViolentCrimesPerPop')
-       .orderBy(F.col('ViolentCrimesPerPop').desc(), F.col('racepctblack').desc(), 
-                F.col('racePctWhite').desc(),F.col('racePctAsian').desc(), F.col('racePctHisp').desc())
+       .orderBy(F.col('ViolentCrimesPerPop').desc())
        .limit(10)
        .show())
 
@@ -293,15 +292,15 @@ if __name__ == "__main__":
     # Transformação
     df_tr = communities_crime_tr(df) 
 
-    pergunta_1(df_tr)
-    pergunta_2(df_tr)
-    pergunta_3(df_tr)
-    pergunta_4(df_tr)
-    pergunta_5(df_tr)
-    pergunta_6(df_tr)
-    pergunta_7(df_tr)
-    pergunta_8(df_tr)
-    pergunta_9(df_tr)
-    pergunta_10(df_tr)
-    pergunta_11(df_tr)
-    pergunta_12(df_tr)
+    pergunta_1(df)
+    pergunta_2(df)
+    pergunta_3(df)
+    pergunta_4(df)
+    pergunta_5(df)
+    pergunta_6(df)
+    pergunta_7(df)
+    pergunta_8(df)
+    pergunta_9(df)
+    pergunta_10(df)
+    pergunta_11(df)
+    pergunta_12(df)
