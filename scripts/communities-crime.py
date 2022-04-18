@@ -179,11 +179,11 @@ def pergunta_1(df):
     (df.where((F.col('PolicOperBudg').isNotNull()) &
               (F.col('state').isNotNull()) &
               (F.col('communityname').isNotNull()))
-	   .groupBy('state', 'communityname')
+       .groupBy('state', 'communityname')
        .agg(F.round(F.sum('PolicOperBudg'), 2).alias('PolicOperBudg'))
-	   .orderBy(F.col('PolicOperBudg').desc())
-	   .limit(1)
-	   .show())
+       .orderBy(F.col('PolicOperBudg').desc())
+       .limit(1)
+       .show())
 
 
 def pergunta_2(df):
@@ -192,10 +192,10 @@ def pergunta_2(df):
               (F.col('state').isNotNull()) &
               (F.col('communityname').isNotNull()))
        .groupBy('state', 'communityname')
-	   .agg(F.round(F.sum('ViolentCrimesPerPop'), 2).alias('violent_crimes'))
-	   .orderBy(F.col('violent_crimes').desc())
-	   .limit(1)
-	   .show())
+       .agg(F.round(F.sum('ViolentCrimesPerPop'), 2).alias('violent_crimes'))
+       .orderBy(F.col('violent_crimes').desc())
+       .limit(1)
+       .show())
 
 
 def pergunta_3(df):
@@ -204,10 +204,10 @@ def pergunta_3(df):
               (F.col('state').isNotNull()) &
               (F.col('communityname').isNotNull()))
        .groupBy('state', 'communityname')
-	   .agg(F.round(F.sum('population'), 2).alias('population'))
-	   .orderBy(F.col('population').desc())
-	   .limit(1)
-	   .show())
+       .agg(F.round(F.sum('population'), 2).alias('population'))
+       .orderBy(F.col('population').desc())
+       .limit(1)
+       .show())
 
 
 def pergunta_4(df):
@@ -216,10 +216,10 @@ def pergunta_4(df):
               (F.col('state').isNotNull()) &
               (F.col('communityname').isNotNull()))
        .groupBy('state', 'Communityname')
-	   .agg(F.round(F.sum('racepctblack'), 2).alias('populacao_negra'))
-	   .orderBy(F.col('populacao_negra').desc())
-	   .limit(1)
-	   .show())
+       .agg(F.round(F.sum('racepctblack'), 2).alias('populacao_negra'))
+       .orderBy(F.col('populacao_negra').desc())
+       .limit(1)
+       .show())
 
 
 def pergunta_5(df):
@@ -228,10 +228,10 @@ def pergunta_5(df):
               (F.col('state').isNotNull()) &
               (F.col('communityname').isNotNull()))
        .groupBy('state', 'communityname')
-	   .agg(F.round(F.sum('pctWWage'), 2).alias('perc_salariados'))
-	   .orderBy(F.col('perc_salariados').desc())
-	   .limit(1)
-	   .show())
+       .agg(F.round(F.sum('pctWWage'), 2).alias('perc_salariados'))
+       .orderBy(F.col('perc_salariados').desc())
+       .limit(1)
+       .show())
 
 
 def pergunta_6(df):
@@ -240,10 +240,10 @@ def pergunta_6(df):
               (F.col('state').isNotNull()) &
               (F.col('communityname').isNotNull()))
        .groupBy('state', 'communityname')
-	   .agg(F.round(F.sum('agePct12t29'), 2).alias('jovens'))
-	   .orderBy(F.col('jovens').desc())
-	   .limit(1)
-	   .show())
+       .agg(F.round(F.sum('agePct12t29'), 2).alias('jovens'))
+       .orderBy(F.col('jovens').desc())
+       .limit(1)
+       .show())
 
 def pergunta_7(df):
     print('Pergunta 7')
