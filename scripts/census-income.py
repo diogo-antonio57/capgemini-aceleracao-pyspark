@@ -8,12 +8,30 @@ def census_income_tr(df):
     df = df.withColumn('workclass',
                         F.when(F.col('workclass').rlike('\?'), None)
                          .otherwise(F.col('workclass')))
-           .withColumn('occupation',
+
+    df = df.withColumn('occupation',
                         F.when(F.col('occupation').rlike('\?'), None)
                          .otherwise(F.col('occupation')))
-           .withColumn('native-country',
+
+    df = df.withColumn('native-country',
                         F.when(F.col('native-country').rlike('\?'), None)
                          .otherwise(F.col('native-country')))
+    
+    return df
+
+
+def pergunta_1(df):
+    (df.where(F.col('income').rlike('>50K'))
+       .groupBy('workclass', 'income')
+       .count()
+       .orderBy(F.col('count').desc())
+       .show())
+
+
+def pergunta_2(df):
+    (df.groupBy('race')
+       .agg(F.round(F.avg('hours-per-week'), 2).alias('hora_de_trabalho_semanal_media'))
+       .show())
 
 
 if __name__ == "__main__":
@@ -45,4 +63,6 @@ if __name__ == "__main__":
                .load("/home/spark/capgemini-aceleracao-pyspark/data/census-income/census-income.csv"))
 
     df_tr = census_income_tr(df)
-    # print(df.show())
+    
+    # pergunta_1(df_tr)
+    pergunta_2(df_tr)
