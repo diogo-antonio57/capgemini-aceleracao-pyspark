@@ -139,37 +139,30 @@ def df_schema():
 	return schema_df
 
 def communities_crime_tr(df):
-    df = df.withColumn('PolicOperBudg',
+    df = (df.withColumn('PolicOperBudg',
                         F.when(F.col('PolicOperBudg').isNull(), 0)
                          .otherwise(F.col('PolicOperBudg')))
-    
-    df = df.withColumn('PctPolicWhite',
+		   .withColumn('PctPolicWhite',
                         F.when(F.col('PctPolicWhite').isNull(), 0)
                          .otherwise(F.col('PctPolicWhite')))
-
-    df = df.withColumn('ViolentCrimesPerPop',
+		   .withColumn('ViolentCrimesPerPop',
                         F.when(F.col('ViolentCrimesPerPop').isNull(), 0)
                          .otherwise(F.col('ViolentCrimesPerPop')))
-    
-    df = df.withColumn('population',
+		   .withColumn('population',
                         F.when(F.col('population').isNull(), 0)
                          .otherwise(F.col('population')))
-
-    df = df.withColumn('racepctblack',
+		   .withColumn('racepctblack',
                         F.when(F.col('racepctblack').isNull(), 0)
                          .otherwise(F.col('racepctblack')))
-
-    df = df.withColumn('pctWWage',
+		   .withColumn('pctWWage',
                         F.when(F.col('pctWWage').isNull(), 0)
                          .otherwise(F.col('pctWWage')))
-    
-    df = df.withColumn('agePct12t29',
+		   .withColumn('agePct12t29',
                         F.when(F.col('agePct12t29').isNull(), 0)
                          .otherwise(F.col('agePct12t29')))
-
-    df = df.withColumn('medIncome',
+		   .withColumn('medIncome',
                         F.when(F.col('medIncome').isNull(), 0)
-                         .otherwise(F.col('medIncome')))
+                         .otherwise(F.col('medIncome'))))
     
     return df
 
