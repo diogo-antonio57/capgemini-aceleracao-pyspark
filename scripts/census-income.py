@@ -21,7 +21,8 @@ def census_income_tr(df):
 
 
 def pergunta_1(df):
-    (df.where(F.col('income').rlike('>50K'))
+    (df.where((F.col('income').rlike('>50K')) &
+              (F.col('workclass').isNotNull()))
        .groupBy('workclass', 'income')
        .count()
        .orderBy(F.col('count').desc())
@@ -31,6 +32,21 @@ def pergunta_1(df):
 def pergunta_2(df):
     (df.groupBy('race')
        .agg(F.round(F.avg('hours-per-week'), 2).alias('hora_de_trabalho_semanal_media'))
+       .show())
+
+
+def pergunta_3(df):
+    (df.groupBy('sex')
+       .count()
+       .withColumn('percent', F.round((F.col('count')/df.count()), 2))
+       .show())
+
+
+def pergunta_5(df):
+    (df.groupBy('occupation')
+       .agg(F.round(F.avg('hours-per-week'), 2).alias('media horas/semana'))
+       .orderBy(F.col('media horas/semana').desc())
+       .limit(1)
        .show())
 
 
@@ -65,4 +81,6 @@ if __name__ == "__main__":
     df_tr = census_income_tr(df)
     
     # pergunta_1(df_tr)
-    pergunta_2(df_tr)
+    # pergunta_2(df_tr)
+    # pergunta_3(df_tr)
+    pergunta_5(df_tr)
