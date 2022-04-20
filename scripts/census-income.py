@@ -14,9 +14,12 @@ def census_income_tr(df):
             .withColumn('native-country',
                         F.when(F.col('native-country').rlike('\?'), None)
                          .otherwise(F.col('native-country')))
-            .withColumn('civil_status',
+            .withColumn('married_status',
                         F.when(F.col('marital-status').contains('Married'), 'married')
-                         .otherwise('no-married')))
+                         .otherwise('no-married'))
+            .withColumn('white-ratio', 
+                        F.when(F.col('race').contains('White'), 'white')
+                         .otherwise('no-white')))
     
     return df
 
@@ -94,7 +97,7 @@ def pergunta_9(df):
 
 def pergunta_10(df):
     print('Pergunta 10')
-    (df.groupBy('civil_status')
+    (df.groupBy('married_status')
        .count()
        .withColumn('ratio', F.round((F.col('count')/df.count()), 2))
        .show())
@@ -102,8 +105,8 @@ def pergunta_10(df):
 
 def pergunta_11(df):
     print('Pergunta 11')
-    (df.where(F.col('civil_status') == 'no-married')
-       .groupBy('civil_status', 'race')
+    (df.where(F.col('married_status') == 'no-married')
+       .groupBy('married_status', 'race')
        .count()
        .orderBy(F.col('count').desc())
        .limit(1)
@@ -112,10 +115,10 @@ def pergunta_11(df):
 
 def pergunta_12(df):
     print('Pergunta 12')
-    (df.groupBy('civil_status', 'income')
+    (df.groupBy('married_status', 'income')
        .count()
        .orderBy(F.col('count').desc())
-       .dropDuplicates(['civil_status'])
+       .dropDuplicates(['married_status'])
        .show())
        
 
@@ -125,6 +128,25 @@ def pergunta_13(df):
        .count()
        .orderBy(F.col('count').desc())
        .dropDuplicates(['sex'])
+       .show())
+
+
+def pergunta_14(df):
+    print('Pergunta 14')
+    (df.where(F.col('native-country').isNotNull())
+       .groupBy('native-country', 'income')
+       .count()
+       .orderBy(F.col('count').desc())
+       .dropDuplicates(['native-country'])
+       .select('native-country', 'income')
+       .show())
+
+
+def pergunta_15(df):
+    print('Pergunta 15')
+    (df.groupBy('white-ratio')
+       .count()
+       .withColumn('ratio', F.round((F.col('count')/df.count()), 2))
        .show())
 
 
@@ -170,3 +192,5 @@ if __name__ == "__main__":
     pergunta_11(df_tr)
     pergunta_12(df_tr)
     pergunta_13(df_tr)
+    pergunta_14(df_tr)
+    pergunta_15(df_tr)
