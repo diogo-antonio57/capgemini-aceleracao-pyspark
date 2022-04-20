@@ -63,6 +63,22 @@ def pergunta_6(df):
        .show())
 
 
+def pergunta_7(df):
+    (df.groupBy('occupation', 'sex')
+       .count()
+       .orderBy(F.col('count').desc())
+       .dropDuplicates(['sex'])
+       .show())
+
+
+def pergunta_8(df):
+    (df.groupBy('race', 'education')
+       .count()
+       .orderBy(F.col('count').desc())
+       .dropDuplicates(['race'])
+       .show())
+
+
 if __name__ == "__main__":
     sc = SparkContext()
     spark = (SparkSession.builder.appName("Aceleração PySpark - Capgemini [Census Income]"))
@@ -98,3 +114,5 @@ if __name__ == "__main__":
     pergunta_3(df_tr)
     pergunta_5(df_tr)
     pergunta_6(df_tr)
+    pergunta_7(df_tr)
+    pergunta_8(df_tr)
