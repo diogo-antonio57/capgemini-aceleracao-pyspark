@@ -139,37 +139,11 @@ def df_schema():
 	return schema_df
 
 def communities_crime_tr(df):
-    df = df.withColumn('PolicOperBudg',
-                        F.when(F.col('PolicOperBudg').isNull(), 0)
-                         .otherwise(F.col('PolicOperBudg')))
-    
-    df = df.withColumn('PctPolicWhite',
-                        F.when(F.col('PctPolicWhite').isNull(), 0)
-                         .otherwise(F.col('PctPolicWhite')))
-
-    df = df.withColumn('ViolentCrimesPerPop',
-                        F.when(F.col('ViolentCrimesPerPop').isNull(), 0)
-                         .otherwise(F.col('ViolentCrimesPerPop')))
-    
-    df = df.withColumn('population',
-                        F.when(F.col('population').isNull(), 0)
-                         .otherwise(F.col('population')))
-
-    df = df.withColumn('racepctblack',
-                        F.when(F.col('racepctblack').isNull(), 0)
-                         .otherwise(F.col('racepctblack')))
-
-    df = df.withColumn('pctWWage',
-                        F.when(F.col('pctWWage').isNull(), 0)
-                         .otherwise(F.col('pctWWage')))
-    
-    df = df.withColumn('agePct12t29',
-                        F.when(F.col('agePct12t29').isNull(), 0)
-                         .otherwise(F.col('agePct12t29')))
-
-    df = df.withColumn('medIncome',
-                        F.when(F.col('medIncome').isNull(), 0)
-                         .otherwise(F.col('medIncome')))
+    df = (df.withColumn('raca_predominante',
+                        F.when(F.col('racepctblack') == F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), 'african american')
+                         .when(F.col('racePctWhite') == F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), 'caucasian')
+                         .when(F.col('racePctAsian') == F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), 'asian heritage')
+                         .when(F.col('racePctHisp')  == F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), 'hispanic heritage')))
     
     return df
 
@@ -271,7 +245,7 @@ def pergunta_11(df):
 
 def pergunta_12(df):
     print('Pergunta 12')
-    (df.select('state', 'communityname', 'racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp', 'ViolentCrimesPerPop')
+    (df.select('state', 'communityname', 'racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp', 'ViolentCrimesPerPop', 'raca_predominante')
        .orderBy(F.col('ViolentCrimesPerPop').desc())
        .limit(10)
        .show())
@@ -289,6 +263,9 @@ if __name__ == "__main__":
 		          .schema(schema_communities_crime)
 		          .load("/home/spark/capgemini-aceleracao-pyspark/data/communities-crime/communities-crime.csv"))
 
+    # df.printSchema()
+    # df.show()
+
     # Transformação
     df_tr = communities_crime_tr(df) 
 
@@ -303,4 +280,4 @@ if __name__ == "__main__":
     pergunta_9(df)
     pergunta_10(df)
     pergunta_11(df)
-    pergunta_12(df)
+    pergunta_12(df_tr)
