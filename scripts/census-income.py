@@ -110,6 +110,24 @@ def pergunta_11(df):
        .show())
 
 
+def pergunta_12(df):
+    print('Pergunta 12')
+    (df.groupBy('civil_status', 'income')
+       .count()
+       .orderBy(F.col('count').desc())
+       .dropDuplicates(['civil_status'])
+       .show())
+       
+
+def pergunta_13(df):
+    print('Pergunta 13')
+    (df.groupBy('sex', 'income')
+       .count()
+       .orderBy(F.col('count').desc())
+       .dropDuplicates(['sex'])
+       .show())
+
+
 if __name__ == "__main__":
     sc = SparkContext()
     spark = (SparkSession.builder.appName("Aceleração PySpark - Capgemini [Census Income]"))
@@ -140,13 +158,15 @@ if __name__ == "__main__":
 
     df_tr = census_income_tr(df)
     
-    # pergunta_1(df_tr)
-    # pergunta_2(df_tr)
-    # pergunta_3(df_tr)
-    # pergunta_5(df_tr)
-    # pergunta_6(df_tr)
-    # pergunta_7(df_tr)
-    # pergunta_8(df_tr)
-    # pergunta_9(df_tr)
-    # pergunta_10(df_tr)
+    pergunta_1(df_tr)
+    pergunta_2(df_tr)
+    pergunta_3(df_tr)
+    pergunta_5(df_tr)
+    pergunta_6(df_tr)
+    pergunta_7(df_tr)
+    pergunta_8(df_tr)
+    pergunta_9(df_tr)
+    pergunta_10(df_tr)
     pergunta_11(df_tr)
+    pergunta_12(df_tr)
+    pergunta_13(df_tr)
