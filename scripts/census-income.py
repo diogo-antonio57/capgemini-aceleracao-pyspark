@@ -64,6 +64,7 @@ def pergunta_6(df):
 
 
 def pergunta_7(df):
+    print('Pergunta 7')
     (df.groupBy('occupation', 'sex')
        .count()
        .orderBy(F.col('count').desc())
@@ -72,10 +73,21 @@ def pergunta_7(df):
 
 
 def pergunta_8(df):
+    print('Pergunta 8')
     (df.groupBy('race', 'education')
        .count()
        .orderBy(F.col('count').desc())
        .dropDuplicates(['race'])
+       .show())
+
+
+def pergunta_9(df):
+    print('Pergunta 9')
+    (df.where(F.col('workclass').contains('Self-emp'))
+       .groupBy('workclass', 'education', 'sex', 'race')
+       .count()
+       .orderBy(F.col('count').desc())
+       .dropDuplicates(['workclass'])
        .show())
 
 
@@ -116,3 +128,4 @@ if __name__ == "__main__":
     pergunta_6(df_tr)
     pergunta_7(df_tr)
     pergunta_8(df_tr)
+    pergunta_9(df_tr)
