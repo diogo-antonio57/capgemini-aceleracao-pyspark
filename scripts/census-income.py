@@ -5,17 +5,18 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType, 
 
 
 def census_income_tr(df):
-    df = df.withColumn('workclass',
+    df = (df.withColumn('workclass',
                         F.when(F.col('workclass').rlike('\?'), None)
                          .otherwise(F.col('workclass')))
-
-    df = df.withColumn('occupation',
+            .withColumn('occupation',
                         F.when(F.col('occupation').rlike('\?'), None)
                          .otherwise(F.col('occupation')))
-
-    df = df.withColumn('native-country',
+            .withColumn('native-country',
                         F.when(F.col('native-country').rlike('\?'), None)
                          .otherwise(F.col('native-country')))
+            .withColumn('civil_status',
+                        F.when(F.col('marital-status').contains('Married'), 'married')
+                         .otherwise('no-married')))
     
     return df
 
@@ -91,6 +92,24 @@ def pergunta_9(df):
        .show())
 
 
+def pergunta_10(df):
+    print('Pergunta 10')
+    (df.groupBy('civil_status')
+       .count()
+       .withColumn('ratio', F.round((F.col('count')/df.count()), 2))
+       .show())
+
+
+def pergunta_11(df):
+    print('Pergunta 11')
+    (df.where(F.col('civil_status') == 'no-married')
+       .groupBy('civil_status', 'race')
+       .count()
+       .orderBy(F.col('count').desc())
+       .limit(1)
+       .show())
+
+
 if __name__ == "__main__":
     sc = SparkContext()
     spark = (SparkSession.builder.appName("Aceleração PySpark - Capgemini [Census Income]"))
@@ -121,11 +140,13 @@ if __name__ == "__main__":
 
     df_tr = census_income_tr(df)
     
-    pergunta_1(df_tr)
-    pergunta_2(df_tr)
-    pergunta_3(df_tr)
-    pergunta_5(df_tr)
-    pergunta_6(df_tr)
-    pergunta_7(df_tr)
-    pergunta_8(df_tr)
-    pergunta_9(df_tr)
+    # pergunta_1(df_tr)
+    # pergunta_2(df_tr)
+    # pergunta_3(df_tr)
+    # pergunta_5(df_tr)
+    # pergunta_6(df_tr)
+    # pergunta_7(df_tr)
+    # pergunta_8(df_tr)
+    # pergunta_9(df_tr)
+    # pergunta_10(df_tr)
+    pergunta_11(df_tr)
